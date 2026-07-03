@@ -57,9 +57,7 @@ function App() {
   const socket = useMemo(() => io(SERVER_URL), []);
   const [name, setName] = useState(localStorage.getItem("wordfrontName") || "Domain");
   const [joinCode, setJoinCode] = useState("");
-    const [wfDiagOpen, setWfDiagOpen] = useState(true);
-  const [wfDiag, setWfDiag] = useState({});
-const [helpOpen, setHelpOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 const [game, setGame] = useState(null);
   const [playerId, setPlayerId] = useState(null);
   
@@ -106,108 +104,7 @@ const [selectedLetter, setSelectedLetter] = useState(null);
   }
 return () => { cancelled = true; };
   }, []);
-
-
-  useEffect(() => {
-    let rafId = 0;
-
-    function updateWordfrontResponsiveFrameV089() {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        const root = document.documentElement;
-        const width = Math.max(1, root.clientWidth || window.innerWidth || 1);
-        const height = Math.max(1, root.clientHeight || window.innerHeight || 1);
-        root.style.setProperty("--wf-vw", `${width}px`);
-        root.style.setProperty("--wf-vh", `${height}px`);
-        root.dataset.wfAspect = width / height < 1.55 ? "tall" : width / height > 2.05 ? "wide" : "balanced";
-      });
-    }
-
-    updateWordfrontResponsiveFrameV089();
-
-    const observer = typeof ResizeObserver !== "undefined"
-      ? new ResizeObserver(updateWordfrontResponsiveFrameV089)
-      : null;
-
-    if (observer) {
-      observer.observe(document.documentElement);
-      if (document.body) observer.observe(document.body);
-    }
-
-    window.addEventListener("resize", updateWordfrontResponsiveFrameV089);
-    window.addEventListener("orientationchange", updateWordfrontResponsiveFrameV089);
-    window.visualViewport?.addEventListener("resize", updateWordfrontResponsiveFrameV089);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      observer?.disconnect();
-      window.removeEventListener("resize", updateWordfrontResponsiveFrameV089);
-      window.removeEventListener("orientationchange", updateWordfrontResponsiveFrameV089);
-      window.visualViewport?.removeEventListener("resize", updateWordfrontResponsiveFrameV089);
-    };
-  }, []);
-
-
-  useEffect(() => {
-    let rafId = 0;
-
-    const measureWordfrontDiagnostics = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        const root = document.getElementById("root");
-        const app = document.querySelector(".app");
-        const homeShell = document.querySelector(".homeShell");
-        const gameShell = document.querySelector(".gameShell");
-        const board = document.querySelector(".board") || document.querySelector(".battlefield");
-        const rack = document.querySelector(".rackCard") || document.querySelector(".rack");
-
-        const rect = (el) => {
-          if (!el) return null;
-          const r = el.getBoundingClientRect();
-          return {
-            w: Math.round(r.width),
-            h: Math.round(r.height),
-            x: Math.round(r.x),
-            y: Math.round(r.y)
-          };
-        };
-
-        setWfDiag({
-          inner: `${window.innerWidth}×${window.innerHeight}`,
-          visual: window.visualViewport
-            ? `${Math.round(window.visualViewport.width)}×${Math.round(window.visualViewport.height)}`
-            : "n/a",
-          dpr: window.devicePixelRatio || 1,
-          root: rect(root),
-          app: rect(app),
-          home: rect(homeShell),
-          game: rect(gameShell),
-          board: rect(board),
-          rack: rect(rack),
-          href: window.location.href,
-          ua: navigator.userAgent
-        });
-      });
-    };
-
-    measureWordfrontDiagnostics();
-
-    window.addEventListener("resize", measureWordfrontDiagnostics);
-    window.addEventListener("orientationchange", measureWordfrontDiagnostics);
-    window.visualViewport?.addEventListener("resize", measureWordfrontDiagnostics);
-
-    const intervalId = window.setInterval(measureWordfrontDiagnostics, 1000);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.clearInterval(intervalId);
-      window.removeEventListener("resize", measureWordfrontDiagnostics);
-      window.removeEventListener("orientationchange", measureWordfrontDiagnostics);
-      window.visualViewport?.removeEventListener("resize", measureWordfrontDiagnostics);
-    };
-  }, []);
-
-  function makeBoardKey(next) {
+function makeBoardKey(next) {
     if (!next?.map) return "";
     return next.map.flat().map((cell) => `${cell.row}:${cell.col}:${cell.letter || ""}:${cell.ownerId || ""}`).join("|");
   }
@@ -246,7 +143,44 @@ return () => { cancelled = true; };
         setDragLetter(null);
       }
     });
-    return () => socket.off("gameState");
+  
+  useEffect(() => {
+    let rafId = 0;
+
+    const updateWordfrontFixedCanvasScale = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const root = document.documentElement;
+        const viewportWidth = Math.max(1, window.visualViewport?.width || window.innerWidth || root.clientWidth || 1);
+        const viewportHeight = Math.max(1, window.visualViewport?.height || window.innerHeight || root.clientHeight || 1);
+
+        const designWidth = 1600;
+        const designHeight = 900;
+        const scale = Math.min(viewportWidth / designWidth, viewportHeight / designHeight);
+
+        root.style.setProperty("--wf-design-w", `${designWidth}px`);
+        root.style.setProperty("--wf-design-h", `${designHeight}px`);
+        root.style.setProperty("--wf-canvas-scale", String(scale));
+        root.style.setProperty("--wf-viewport-w", `${viewportWidth}px`);
+        root.style.setProperty("--wf-viewport-h", `${viewportHeight}px`);
+      });
+    };
+
+    updateWordfrontFixedCanvasScale();
+
+    window.addEventListener("resize", updateWordfrontFixedCanvasScale);
+    window.addEventListener("orientationchange", updateWordfrontFixedCanvasScale);
+    window.visualViewport?.addEventListener("resize", updateWordfrontFixedCanvasScale);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", updateWordfrontFixedCanvasScale);
+      window.removeEventListener("orientationchange", updateWordfrontFixedCanvasScale);
+      window.visualViewport?.removeEventListener("resize", updateWordfrontFixedCanvasScale);
+    };
+  }, []);
+
+  return () => socket.off("gameState");
   }, [socket]);
 
   function saveName() { localStorage.setItem("wordfrontName", name.trim() || "Player"); }
@@ -434,7 +368,7 @@ return () => { cancelled = true; };
       <aside className="leftRail">
         <section className="brandBlock">
           <h1 className="wordmark" data-text="WORDFRONT">WORDFRONT</h1>
-          <p>v1.1.1-diagnostic</p>
+          <p>v1.2.0</p>
         </section>
         <section className="card lobbyCard">
           <p className="eyebrow">LOBBY</p>
@@ -643,32 +577,6 @@ return () => { cancelled = true; };
               </section>
             </div>
           </div>
-        </div>
-      )}
-
-
-      {wfDiagOpen && (
-        <div className="wfDiagOverlay">
-          <div className="wfDiagHeader">
-            <strong>WF DIAG</strong>
-            <button type="button" onClick={() => setWfDiagOpen(false)}>×</button>
-          </div>
-          <div className="wfDiagGrid">
-            <span>inner</span><b>{wfDiag.inner}</b>
-            <span>visual</span><b>{wfDiag.visual}</b>
-            <span>dpr</span><b>{String(wfDiag.dpr)}</b>
-            <span>root</span><b>{wfDiag.root ? `${wfDiag.root.w}×${wfDiag.root.h}` : "n/a"}</b>
-            <span>app</span><b>{wfDiag.app ? `${wfDiag.app.w}×${wfDiag.app.h}` : "n/a"}</b>
-            <span>home</span><b>{wfDiag.home ? `${wfDiag.home.w}×${wfDiag.home.h}` : "n/a"}</b>
-            <span>game</span><b>{wfDiag.game ? `${wfDiag.game.w}×${wfDiag.game.h}` : "n/a"}</b>
-            <span>board</span><b>{wfDiag.board ? `${wfDiag.board.w}×${wfDiag.board.h}` : "n/a"}</b>
-            <span>rack</span><b>{wfDiag.rack ? `${wfDiag.rack.w}×${wfDiag.rack.h}` : "n/a"}</b>
-          </div>
-          <details>
-            <summary>UA / URL</summary>
-            <p>{wfDiag.ua}</p>
-            <p>{wfDiag.href}</p>
-          </details>
         </div>
       )}
 
