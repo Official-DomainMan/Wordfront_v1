@@ -104,48 +104,7 @@ const [selectedLetter, setSelectedLetter] = useState(null);
   }
 return () => { cancelled = true; };
   }, []);
-
-
-  useEffect(() => {
-    let rafId = 0;
-
-    function updateWordfrontResponsiveFrameV089() {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        const root = document.documentElement;
-        const width = Math.max(1, root.clientWidth || window.innerWidth || 1);
-        const height = Math.max(1, root.clientHeight || window.innerHeight || 1);
-        root.style.setProperty("--wf-vw", `${width}px`);
-        root.style.setProperty("--wf-vh", `${height}px`);
-        root.dataset.wfAspect = width / height < 1.55 ? "tall" : width / height > 2.05 ? "wide" : "balanced";
-      });
-    }
-
-    updateWordfrontResponsiveFrameV089();
-
-    const observer = typeof ResizeObserver !== "undefined"
-      ? new ResizeObserver(updateWordfrontResponsiveFrameV089)
-      : null;
-
-    if (observer) {
-      observer.observe(document.documentElement);
-      if (document.body) observer.observe(document.body);
-    }
-
-    window.addEventListener("resize", updateWordfrontResponsiveFrameV089);
-    window.addEventListener("orientationchange", updateWordfrontResponsiveFrameV089);
-    window.visualViewport?.addEventListener("resize", updateWordfrontResponsiveFrameV089);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      observer?.disconnect();
-      window.removeEventListener("resize", updateWordfrontResponsiveFrameV089);
-      window.removeEventListener("orientationchange", updateWordfrontResponsiveFrameV089);
-      window.visualViewport?.removeEventListener("resize", updateWordfrontResponsiveFrameV089);
-    };
-  }, []);
-
-  function makeBoardKey(next) {
+function makeBoardKey(next) {
     if (!next?.map) return "";
     return next.map.flat().map((cell) => `${cell.row}:${cell.col}:${cell.letter || ""}:${cell.ownerId || ""}`).join("|");
   }
@@ -372,7 +331,7 @@ return () => { cancelled = true; };
       <aside className="leftRail">
         <section className="brandBlock">
           <h1 className="wordmark" data-text="WORDFRONT">WORDFRONT</h1>
-          <p>v1.0.5</p>
+          <p>v1.3.0</p>
         </section>
         <section className="card lobbyCard">
           <p className="eyebrow">LOBBY</p>
@@ -611,6 +570,7 @@ return () => { cancelled = true; };
             <p className="eyebrow">MENU</p>
             <h2>Wordfront Control</h2>
             <div className="menuList">
+              <button type="button" onClick={() => { setShowMenu(false); setHelpOpen(true); }}>Help / How to Play</button>
               <button onClick={() => setShowMenu(false)}>Resume Game</button>
               <button onClick={clearPending}>Clear Pending Word</button>
               <button onClick={() => { setShowMenu(false); soloGame(); }}>Restart Solo vs Bot</button>
