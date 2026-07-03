@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta name="color-scheme" content="dark only">
+    <meta name="theme-color" content="#02040a">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wordfront</title>
+      <script id="wordfront-prepaint">
+      document.documentElement.style.backgroundColor = "#02050b";
+      document.documentElement.style.colorScheme = "dark";
+      document.body && (document.body.style.backgroundColor = "#02050b");
+    </script>
+      <style id="wf-hard-prepaint-style">
+      html, body, #root {
+        margin: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        color-scheme: dark !important;
+        background: #02050b !important;
+      }
+    </style>
+      <style id="wf-v047-prepaint">
+      :root { color-scheme: dark only; background: #02040a; }
+      html, body, #root {
+        margin: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        background: #02040a !important;
+        color: #fff !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

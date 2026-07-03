@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["nodejs_22"]
+
+[phases.install]
+cmds = ["rm -rf client/node_modules server/node_modules client/package-lock.json server/package-lock.json package-lock.json", "corepack enable", "corepack prepare yarn@1.22.22 --activate", "yarn --cwd client install --network-timeout 600000", "yarn --cwd server install --network-timeout 600000"]
+
+[phases.build]
+cmds = ["yarn --cwd client build"]
+
+[start]
+cmd = "corepack enable && corepack prepare yarn@1.22.22 --activate && yarn --cwd server start"

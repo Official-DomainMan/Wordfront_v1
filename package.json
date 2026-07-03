@@ -1,0 +1,13 @@
+{
+  "name": "wordfront",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "rm -rf client/node_modules server/node_modules client/package-lock.json server/package-lock.json package-lock.json && corepack enable && corepack prepare yarn@1.22.22 --activate && yarn --cwd client install --network-timeout 600000 && yarn --cwd client build && yarn --cwd server install --network-timeout 600000",
+    "start": "corepack enable && corepack prepare yarn@1.22.22 --activate && yarn --cwd server start"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "packageManager": "yarn@1.22.22"
+}
