@@ -104,7 +104,48 @@ const [selectedLetter, setSelectedLetter] = useState(null);
   }
 return () => { cancelled = true; };
   }, []);
-function makeBoardKey(next) {
+
+
+  useEffect(() => {
+    let rafId = 0;
+
+    function updateWordfrontResponsiveFrameV089() {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const root = document.documentElement;
+        const width = Math.max(1, root.clientWidth || window.innerWidth || 1);
+        const height = Math.max(1, root.clientHeight || window.innerHeight || 1);
+        root.style.setProperty("--wf-vw", `${width}px`);
+        root.style.setProperty("--wf-vh", `${height}px`);
+        root.dataset.wfAspect = width / height < 1.55 ? "tall" : width / height > 2.05 ? "wide" : "balanced";
+      });
+    }
+
+    updateWordfrontResponsiveFrameV089();
+
+    const observer = typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(updateWordfrontResponsiveFrameV089)
+      : null;
+
+    if (observer) {
+      observer.observe(document.documentElement);
+      if (document.body) observer.observe(document.body);
+    }
+
+    window.addEventListener("resize", updateWordfrontResponsiveFrameV089);
+    window.addEventListener("orientationchange", updateWordfrontResponsiveFrameV089);
+    window.visualViewport?.addEventListener("resize", updateWordfrontResponsiveFrameV089);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      observer?.disconnect();
+      window.removeEventListener("resize", updateWordfrontResponsiveFrameV089);
+      window.removeEventListener("orientationchange", updateWordfrontResponsiveFrameV089);
+      window.visualViewport?.removeEventListener("resize", updateWordfrontResponsiveFrameV089);
+    };
+  }, []);
+
+  function makeBoardKey(next) {
     if (!next?.map) return "";
     return next.map.flat().map((cell) => `${cell.row}:${cell.col}:${cell.letter || ""}:${cell.ownerId || ""}`).join("|");
   }
@@ -143,42 +184,7 @@ function makeBoardKey(next) {
         setDragLetter(null);
       }
     });
-  
-  useEffect(() => {
-    let rafId = 0;
-
-    const updateWordfrontStableScale = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        const root = document.documentElement;
-        const width = Math.max(1, window.visualViewport?.width || window.innerWidth || root.clientWidth || 1);
-        const height = Math.max(1, window.visualViewport?.height || window.innerHeight || root.clientHeight || 1);
-
-        const designWidth = 1600;
-        const designHeight = 900;
-        const scale = Math.min(width / designWidth, height / designHeight);
-
-        root.style.setProperty("--wf-design-w", `${designWidth}px`);
-        root.style.setProperty("--wf-design-h", `${designHeight}px`);
-        root.style.setProperty("--wf-scale", String(scale));
-      });
-    };
-
-    updateWordfrontStableScale();
-
-    window.addEventListener("resize", updateWordfrontStableScale);
-    window.addEventListener("orientationchange", updateWordfrontStableScale);
-    window.visualViewport?.addEventListener("resize", updateWordfrontStableScale);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", updateWordfrontStableScale);
-      window.removeEventListener("orientationchange", updateWordfrontStableScale);
-      window.visualViewport?.removeEventListener("resize", updateWordfrontStableScale);
-    };
-  }, []);
-
-  return () => socket.off("gameState");
+    return () => socket.off("gameState");
   }, [socket]);
 
   function saveName() { localStorage.setItem("wordfrontName", name.trim() || "Player"); }
@@ -366,7 +372,7 @@ function makeBoardKey(next) {
       <aside className="leftRail">
         <section className="brandBlock">
           <h1 className="wordmark" data-text="WORDFRONT">WORDFRONT</h1>
-          <p>v1.1.0</p>
+          <p>v1.0.5</p>
         </section>
         <section className="card lobbyCard">
           <p className="eyebrow">LOBBY</p>
