@@ -78,33 +78,37 @@ const [selectedLetter, setSelectedLetter] = useState(null);
   useEffect(() => {
     let rafId = 0;
 
-    const updateWordfrontStageScale = () => {
+    const updateWordfrontViewportScaler = () => {
       cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
         const root = document.documentElement;
-        const viewportWidth = Math.max(1, window.visualViewport?.width || window.innerWidth || root.clientWidth || 1);
-        const viewportHeight = Math.max(1, window.visualViewport?.height || window.innerHeight || root.clientHeight || 1);
-        const designWidth = 1600;
-        const designHeight = 900;
-        const scale = Math.min(viewportWidth / designWidth, viewportHeight / designHeight);
+        const vw = Math.max(1, window.visualViewport?.width || window.innerWidth || root.clientWidth || 1);
+        const vh = Math.max(1, window.visualViewport?.height || window.innerHeight || root.clientHeight || 1);
 
-        root.style.setProperty("--wf-stage-scale", String(scale));
-        root.style.setProperty("--wf-stage-w", `${designWidth}px`);
-        root.style.setProperty("--wf-stage-h", `${designHeight}px`);
+        /*
+          The UI itself remains v1.3.0.
+          These variables only let CSS decide whether the shell should gently fit
+          to smaller Discord frames without re-laying out individual panels.
+        */
+        root.style.setProperty("--wf-vw", `${vw}px`);
+        root.style.setProperty("--wf-vh", `${vh}px`);
+        root.style.setProperty("--wf-vmin", `${Math.min(vw, vh)}px`);
+        root.classList.toggle("wf-discord-short", vh < 700);
+        root.classList.toggle("wf-discord-tight", vw < 1400 || vh < 720);
       });
     };
 
-    updateWordfrontStageScale();
+    updateWordfrontViewportScaler();
 
-    window.addEventListener("resize", updateWordfrontStageScale);
-    window.addEventListener("orientationchange", updateWordfrontStageScale);
-    window.visualViewport?.addEventListener("resize", updateWordfrontStageScale);
+    window.addEventListener("resize", updateWordfrontViewportScaler);
+    window.addEventListener("orientationchange", updateWordfrontViewportScaler);
+    window.visualViewport?.addEventListener("resize", updateWordfrontViewportScaler);
 
     return () => {
       cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", updateWordfrontStageScale);
-      window.removeEventListener("orientationchange", updateWordfrontStageScale);
-      window.visualViewport?.removeEventListener("resize", updateWordfrontStageScale);
+      window.removeEventListener("resize", updateWordfrontViewportScaler);
+      window.removeEventListener("orientationchange", updateWordfrontViewportScaler);
+      window.visualViewport?.removeEventListener("resize", updateWordfrontViewportScaler);
     };
   }, []);
 
@@ -361,12 +365,11 @@ function makeBoardKey(next) {
   const rivalPercent = 100 - myPercent;
 
   return (
-    <main className="wfGameStage">
-      <div className="gameShell">
+    <main className="gameShell">
       <aside className="leftRail">
         <section className="brandBlock">
           <h1 className="wordmark" data-text="WORDFRONT">WORDFRONT</h1>
-          <p>v1.5.0</p>
+          <p>v1.6.0</p>
         </section>
         <section className="card lobbyCard">
           <p className="eyebrow">LOBBY</p>
@@ -615,7 +618,6 @@ function makeBoardKey(next) {
         </div>
       )}
 
-      </div>
     </main>
   );
 }
