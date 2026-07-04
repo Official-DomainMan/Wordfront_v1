@@ -76,6 +76,40 @@ const [selectedLetter, setSelectedLetter] = useState(null);
   const ignoreGameUpdatesRef = useRef(false);
 
   useEffect(() => {
+    let rafId = 0;
+
+    const updateWordfrontStageScale = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const root = document.documentElement;
+        const viewportWidth = Math.max(1, window.visualViewport?.width || window.innerWidth || root.clientWidth || 1);
+        const viewportHeight = Math.max(1, window.visualViewport?.height || window.innerHeight || root.clientHeight || 1);
+        const designWidth = 1600;
+        const designHeight = 900;
+        const scale = Math.min(viewportWidth / designWidth, viewportHeight / designHeight);
+
+        root.style.setProperty("--wf-stage-scale", String(scale));
+        root.style.setProperty("--wf-stage-w", `${designWidth}px`);
+        root.style.setProperty("--wf-stage-h", `${designHeight}px`);
+      });
+    };
+
+    updateWordfrontStageScale();
+
+    window.addEventListener("resize", updateWordfrontStageScale);
+    window.addEventListener("orientationchange", updateWordfrontStageScale);
+    window.visualViewport?.addEventListener("resize", updateWordfrontStageScale);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", updateWordfrontStageScale);
+      window.removeEventListener("orientationchange", updateWordfrontStageScale);
+      window.visualViewport?.removeEventListener("resize", updateWordfrontStageScale);
+    };
+  }, []);
+
+
+  useEffect(() => {
     let cancelled = false;
     initDiscordActivity()
       .then((ctx) => {
@@ -327,11 +361,12 @@ function makeBoardKey(next) {
   const rivalPercent = 100 - myPercent;
 
   return (
-    <main className="gameShell">
+    <main className="wfGameStage">
+      <div className="gameShell">
       <aside className="leftRail">
         <section className="brandBlock">
           <h1 className="wordmark" data-text="WORDFRONT">WORDFRONT</h1>
-          <p>v1.4.0</p>
+          <p>v1.5.0</p>
         </section>
         <section className="card lobbyCard">
           <p className="eyebrow">LOBBY</p>
@@ -580,6 +615,7 @@ function makeBoardKey(next) {
         </div>
       )}
 
+      </div>
     </main>
   );
 }

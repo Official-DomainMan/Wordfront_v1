@@ -13583,34 +13583,21 @@ html.wf-ultra-narrow .rightRail,
 
 
 /* ==========================================================================
-   WORD FRONT v1.4.0 PLATFORM CONSISTENCY PASS
-   Safe CSS-only normalization:
-   - No JS scaling hook.
-   - No transform/fixed-canvas architecture.
-   - Keeps v1.3 working render + Help menu.
-   - Uses a centered 16:9 game frame so Discord app, Discord web, and Railway
-     keep the same proportions instead of letting the grid stretch differently.
+   WORD FRONT v1.5.0 STAGE-SCALED GAME FRAME
+   Safe architecture:
+   - Home screen stays normal.
+   - Game screen uses a wrapper `.wfGameStage`.
+   - Existing `.gameShell` is kept as the internal 1600x900 game design.
+   - Only `.gameShell` is scaled inside `.wfGameStage`.
+   - This keeps board/rack/panels identical across Discord desktop, Discord web,
+     and Railway without applying transform directly to the app root or home.
    ========================================================================== */
 
 :root {
+  --wf-stage-scale: 1;
+  --wf-stage-w: 1600px;
+  --wf-stage-h: 900px;
   color-scheme: dark !important;
-
-  /* Frame is the largest 16:9 area that fits the current viewport. */
-  --wf-frame-w: min(100vw, calc(100vh * 1.7777778));
-  --wf-frame-h: min(100vh, calc(100vw * 0.5625));
-
-  /* Layout proportions based on frame size, not raw browser width. */
-  --wf-gap: max(4px, calc(var(--wf-frame-h) * 0.007));
-  --wf-pad: max(4px, calc(var(--wf-frame-h) * 0.006));
-  --wf-left-w: calc(var(--wf-frame-w) * 0.172);
-  --wf-right-w: calc(var(--wf-frame-w) * 0.153);
-  --wf-top-h: calc(var(--wf-frame-h) * 0.093);
-  --wf-rack-h: calc(var(--wf-frame-h) * 0.158);
-  --wf-board-size: min(
-    580px,
-    calc(var(--wf-frame-h) - var(--wf-top-h) - var(--wf-rack-h) - (var(--wf-gap) * 5) - (var(--wf-pad) * 2)),
-    calc(var(--wf-frame-w) - var(--wf-left-w) - var(--wf-right-w) - (var(--wf-gap) * 8) - (var(--wf-pad) * 2))
-  );
 }
 
 html,
@@ -13626,252 +13613,213 @@ body,
   overflow: hidden !important;
 }
 
-/* Start screen remains viewport-native. */
-.homeShell {
+/* Game viewport wrapper. */
+.wfGameStage {
+  position: fixed !important;
+  inset: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
   min-width: 0 !important;
   min-height: 0 !important;
-}
-
-/* Game frame is centered and aspect-stable, but NOT transformed/scaled.
-   This avoids the blue-screen issue from fixed transform canvas attempts. */
-.gameShell {
-  position: fixed !important;
-  left: 50% !important;
-  top: 50% !important;
-  width: var(--wf-frame-w) !important;
-  height: var(--wf-frame-h) !important;
-  min-width: 0 !important;
-  min-height: 0 !important;
-  max-width: var(--wf-frame-w) !important;
-  max-height: var(--wf-frame-h) !important;
-  transform: translate(-50%, -50%) !important;
-  transform-origin: center center !important;
-
-  display: grid !important;
-  grid-template-columns: var(--wf-left-w) minmax(0, 1fr) var(--wf-right-w) !important;
-  grid-template-rows: minmax(0, 1fr) !important;
-  gap: var(--wf-gap) !important;
-  padding: var(--wf-pad) !important;
-
   overflow: hidden !important;
-  box-sizing: border-box !important;
-  zoom: 1 !important;
-  aspect-ratio: auto !important;
+  display: grid !important;
+  place-items: center !important;
   margin: 0 !important;
+  padding: 0 !important;
   background: transparent !important;
 }
 
-/* Disable previous compact/narrow class overrides from older patches. */
-html.wf-compact .gameShell,
-html.wf-short .gameShell,
-html.wf-narrow .gameShell,
-html.wf-ultra-narrow .gameShell {
-  width: var(--wf-frame-w) !important;
-  height: var(--wf-frame-h) !important;
-  max-width: var(--wf-frame-w) !important;
-  max-height: var(--wf-frame-h) !important;
-  grid-template-columns: var(--wf-left-w) minmax(0, 1fr) var(--wf-right-w) !important;
-  transform: translate(-50%, -50%) !important;
+/* Existing game layout becomes the fixed internal design frame. */
+.wfGameStage > .gameShell {
+  position: relative !important;
+  width: var(--wf-stage-w) !important;
+  height: var(--wf-stage-h) !important;
+  min-width: var(--wf-stage-w) !important;
+  min-height: var(--wf-stage-h) !important;
+  max-width: var(--wf-stage-w) !important;
+  max-height: var(--wf-stage-h) !important;
+
+  transform: scale(var(--wf-stage-scale)) !important;
+  transform-origin: center center !important;
+
+  display: grid !important;
+  grid-template-columns: 320px minmax(0, 1fr) 300px !important;
+  grid-template-rows: 1fr !important;
+  gap: 14px !important;
+  padding: 10px 14px 12px !important;
+
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  aspect-ratio: auto !important;
+  zoom: 1 !important;
+}
+
+/* Older responsive classes must not change the internal design frame. */
+html.wf-compact .wfGameStage > .gameShell,
+html.wf-short .wfGameStage > .gameShell,
+html.wf-narrow .wfGameStage > .gameShell,
+html.wf-ultra-narrow .wfGameStage > .gameShell {
+  width: var(--wf-stage-w) !important;
+  height: var(--wf-stage-h) !important;
+  min-width: var(--wf-stage-w) !important;
+  min-height: var(--wf-stage-h) !important;
+  max-width: var(--wf-stage-w) !important;
+  max-height: var(--wf-stage-h) !important;
+  grid-template-columns: 320px minmax(0, 1fr) 300px !important;
+  transform: scale(var(--wf-stage-scale)) !important;
 }
 
 html.wf-ultra-narrow .rightRail,
-.rightRail {
+.wfGameStage .rightRail {
   display: grid !important;
 }
 
-/* Rail and stage proportions normalized to frame height. */
-.leftRail,
-.mainStage,
-.rightRail,
-.topBar,
-.boardPanel,
-.boardCard,
-.rackCard {
+/* Internal fixed design dimensions. */
+.wfGameStage .leftRail,
+.wfGameStage .mainStage,
+.wfGameStage .rightRail,
+.wfGameStage .topBar,
+.wfGameStage .boardPanel,
+.wfGameStage .rackCard {
   min-width: 0 !important;
   min-height: 0 !important;
   overflow: hidden !important;
 }
 
-.leftRail {
+.wfGameStage .leftRail {
   display: grid !important;
-  grid-template-rows:
-    var(--wf-top-h)
-    calc(var(--wf-frame-h) * 0.140)
-    calc(var(--wf-frame-h) * 0.189)
-    calc(var(--wf-frame-h) * 0.164)
-    minmax(0, 1fr)
-    calc(var(--wf-frame-h) * 0.124) !important;
-  gap: var(--wf-gap) !important;
+  grid-template-rows: 86px 126px 170px 148px minmax(0, 1fr) 42px !important;
+  gap: 10px !important;
 }
 
-.mainStage {
+.wfGameStage .mainStage {
   display: grid !important;
-  grid-template-rows: var(--wf-top-h) minmax(0, 1fr) var(--wf-rack-h) !important;
-  gap: var(--wf-gap) !important;
+  grid-template-rows: 90px minmax(0, 1fr) 176px !important;
+  gap: 10px !important;
 }
 
-.rightRail {
+.wfGameStage .rightRail {
   display: grid !important;
-  grid-template-rows:
-    calc(var(--wf-frame-h) * 0.164)
-    calc(var(--wf-frame-h) * 0.116)
-    minmax(0, 1fr) !important;
-  gap: var(--wf-gap) !important;
+  grid-template-rows: 148px 104px minmax(0, 1fr) !important;
+  gap: 10px !important;
 }
 
-.topBar {
+.wfGameStage .topBar {
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) calc(var(--wf-frame-w) * 0.122) !important;
-  gap: var(--wf-gap) !important;
+  grid-template-columns: 1fr 250px !important;
+  gap: 12px !important;
 }
 
-/* Board always square and proportionally consistent. */
-.boardPanel,
-.boardCard {
-  display: grid !important;
-  place-items: center !important;
-  padding: max(5px, calc(var(--wf-frame-h) * 0.009)) !important;
-}
-
-.battlefield,
-.board {
-  width: var(--wf-board-size) !important;
-  height: var(--wf-board-size) !important;
-  min-width: var(--wf-board-size) !important;
-  min-height: var(--wf-board-size) !important;
-  max-width: var(--wf-board-size) !important;
-  max-height: var(--wf-board-size) !important;
+.wfGameStage .battlefield,
+.wfGameStage .board {
+  width: 580px !important;
+  height: 580px !important;
+  min-width: 580px !important;
+  min-height: 580px !important;
+  max-width: 580px !important;
+  max-height: 580px !important;
   aspect-ratio: 1 / 1 !important;
-  transform: none !important;
 }
 
-/* Rack/action area normalized to frame dimensions. */
-.rackCard {
+/* Stable rack and action dock. */
+.wfGameStage .rackCard {
   display: grid !important;
-  grid-template-columns:
-    calc(var(--wf-frame-w) * 0.119)
-    minmax(0, 1fr)
-    calc(var(--wf-frame-w) * 0.166) !important;
+  grid-template-columns: 190px minmax(0, 1fr) 265px !important;
   grid-template-rows: 1fr !important;
   align-items: center !important;
-  gap: max(6px, calc(var(--wf-frame-w) * 0.0075)) !important;
-  padding: max(7px, calc(var(--wf-frame-h) * 0.013)) max(8px, calc(var(--wf-frame-w) * 0.010)) !important;
+  gap: 12px !important;
+  padding: 12px 16px !important;
 }
 
-.rackCard .rack,
-.rack {
+.wfGameStage .rack {
   display: grid !important;
-  grid-template-columns: repeat(13, min(36px, calc(var(--wf-frame-w) * 0.0225), calc(var(--wf-frame-h) * 0.040))) !important;
-  gap: max(3px, calc(var(--wf-frame-w) * 0.003)) !important;
+  grid-template-columns: repeat(13, 36px) !important;
+  gap: 5px !important;
   width: max-content !important;
-  max-width: 100% !important;
+  max-width: none !important;
   justify-self: center !important;
   align-self: center !important;
-  margin: 0 !important;
-  overflow: visible !important;
 }
 
-.letterTile {
-  width: min(36px, calc(var(--wf-frame-w) * 0.0225), calc(var(--wf-frame-h) * 0.040)) !important;
-  min-width: min(36px, calc(var(--wf-frame-w) * 0.0225), calc(var(--wf-frame-h) * 0.040)) !important;
-  max-width: min(36px, calc(var(--wf-frame-w) * 0.0225), calc(var(--wf-frame-h) * 0.040)) !important;
-  height: min(36px, calc(var(--wf-frame-w) * 0.0225), calc(var(--wf-frame-h) * 0.040)) !important;
-  min-height: min(36px, calc(var(--wf-frame-w) * 0.0225), calc(var(--wf-frame-h) * 0.040)) !important;
-  max-height: min(36px, calc(var(--wf-frame-w) * 0.0225), calc(var(--wf-frame-h) * 0.040)) !important;
+.wfGameStage .letterTile {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  max-width: 36px !important;
+  max-height: 36px !important;
 }
 
-.letterTile span {
-  font-size: min(18px, calc(var(--wf-frame-h) * 0.020)) !important;
+.wfGameStage .letterTile span {
+  font-size: 18px !important;
 }
 
-.letterTile small {
-  font-size: min(6px, calc(var(--wf-frame-h) * 0.007)) !important;
+.wfGameStage .letterTile small {
+  font-size: 6px !important;
 }
 
-/* Button dock remains complete and aligned. */
-.wfFooterActionDock {
+.wfGameStage .wfFooterActionDock {
   display: grid !important;
-  grid-template-columns: minmax(56px, .82fr) minmax(88px, 1.18fr) !important;
-  gap: max(6px, calc(var(--wf-frame-w) * 0.006)) !important;
-  width: min(218px, calc(var(--wf-frame-w) * 0.136)) !important;
-  min-width: min(150px, calc(var(--wf-frame-w) * 0.136)) !important;
+  grid-template-columns: 78px 130px !important;
+  gap: 10px !important;
+  width: 218px !important;
+  min-width: 218px !important;
   max-width: 218px !important;
   justify-self: end !important;
   align-self: center !important;
-  z-index: 10 !important;
 }
 
-.wfFooterActionDock > button,
-.wfClearButton,
-.wfDeployButton {
-  height: min(42px, calc(var(--wf-frame-h) * 0.047)) !important;
-  min-height: min(30px, calc(var(--wf-frame-h) * 0.047)) !important;
+.wfGameStage .wfFooterActionDock > button,
+.wfGameStage .wfClearButton,
+.wfGameStage .wfDeployButton {
+  height: 42px !important;
+  min-height: 42px !important;
   max-height: 42px !important;
-  padding: 0 max(4px, calc(var(--wf-frame-w) * 0.005)) !important;
-  border-radius: 9px !important;
-  font-size: min(8px, calc(var(--wf-frame-h) * 0.009)) !important;
+  padding: 0 8px !important;
+  font-size: 8px !important;
   line-height: 1.05 !important;
   white-space: nowrap !important;
 }
 
-/* Platform-stable type rhythm. */
-.brandBlock .wordmark,
-.wordmark {
-  font-size: min(39px, calc(var(--wf-frame-h) * 0.043)) !important;
+/* Stable typography inside scaled game. */
+.wfGameStage .brandBlock .wordmark,
+.wfGameStage .wordmark {
+  font-size: 39px !important;
   line-height: .86 !important;
-  letter-spacing: -.10em !important;
-  transform: scaleX(.62) skewX(-7deg) !important;
-  transform-origin: left center !important;
 }
 
-.turnCard h2 {
-  font-size: min(42px, calc(var(--wf-frame-h) * 0.047)) !important;
+.wfGameStage .turnCard h2 {
+  font-size: 42px !important;
   line-height: .9 !important;
 }
 
-.timeCard b {
-  font-size: min(42px, calc(var(--wf-frame-h) * 0.047)) !important;
+.wfGameStage .timeCard b {
+  font-size: 42px !important;
   line-height: .9 !important;
 }
 
-.lobbyCard h2 {
-  font-size: min(28px, calc(var(--wf-frame-h) * 0.031)) !important;
+.wfGameStage .lobbyCard h2 {
+  font-size: 28px !important;
   line-height: 1 !important;
 }
 
-.scoreCard h3,
-.botCard h3 {
-  font-size: min(20px, calc(var(--wf-frame-h) * 0.022)) !important;
+.wfGameStage .scoreCard h3,
+.wfGameStage .botCard h3 {
+  font-size: 20px !important;
   line-height: 1.05 !important;
 }
 
-.scoreCard b,
-.botCard b {
-  font-size: min(28px, calc(var(--wf-frame-h) * 0.031)) !important;
+.wfGameStage .scoreCard b,
+.wfGameStage .botCard b {
+  font-size: 28px !important;
   line-height: 1 !important;
 }
 
-.rulesCard li,
-.legendCard p {
-  font-size: min(12px, calc(var(--wf-frame-h) * 0.0135)) !important;
-  line-height: 1.32 !important;
-}
-
-.rackHeader .eyebrow,
-.rackCard .eyebrow {
-  font-size: min(10px, calc(var(--wf-frame-h) * 0.011)) !important;
-  letter-spacing: .18em !important;
-}
-
-.hintLine,
-.rackHeader .hintLine {
-  font-size: min(11px, calc(var(--wf-frame-h) * 0.012)) !important;
-}
-
-/* Help overlay remains viewport native. */
-.wfHelpOverlay {
+/* Overlays remain viewport-native. */
+.wfHelpOverlay,
+.modalOverlay,
+.soloSetupOverlay {
   position: fixed !important;
   inset: 0 !important;
   transform: none !important;
