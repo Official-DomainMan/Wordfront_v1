@@ -13691,3 +13691,200 @@ html.wf-discord-short .bottomButtons button {
   transform: none !important;
   z-index: 2147483647 !important;
 }
+
+
+/* ==========================================================================
+   WORD FRONT v1.6.1 FINAL FIT PATCH
+   Builds on the working v1.6.0 safe-fit behavior.
+   Fixes remaining clipping in Discord Web:
+   - panels no longer clip at top/bottom
+   - grid stays fully visible
+   - rack and action buttons fit without overlap
+   ========================================================================== */
+
+:root {
+  --wf-final-vpad: clamp(6px, 1.1vh, 12px);
+  --wf-final-shell-w: min(100vw, calc((100vh - (var(--wf-final-vpad) * 2)) * 1.86));
+  --wf-final-shell-h: calc(100vh - (var(--wf-final-vpad) * 2));
+  --wf-final-board: min(
+    540px,
+    calc(var(--wf-final-shell-h) - clamp(58px, 8.4vh, 76px) - clamp(102px, 15.4vh, 128px) - 34px),
+    calc(var(--wf-final-shell-w) - clamp(205px, 15vw, 260px) - clamp(185px, 13vw, 225px) - 92px)
+  );
+}
+
+/* Keep the successful centered shell, but add vertical breathing room and slightly narrower ratio. */
+.gameShell {
+  width: var(--wf-final-shell-w) !important;
+  height: var(--wf-final-shell-h) !important;
+  max-width: var(--wf-final-shell-w) !important;
+  max-height: var(--wf-final-shell-h) !important;
+  grid-template-columns: clamp(205px, 15vw, 260px) minmax(0, 1fr) clamp(185px, 13vw, 225px) !important;
+  gap: clamp(4px, .44vw, 7px) !important;
+  padding: clamp(4px, .55vw, 7px) !important;
+  align-self: center !important;
+}
+
+/* Compact vertical rhythm so the left rail bottom buttons stay visible. */
+.leftRail {
+  grid-template-rows:
+    clamp(54px, 8.3vh, 72px)
+    clamp(74px, 11.6vh, 100px)
+    clamp(92px, 15.5vh, 132px)
+    clamp(82px, 13.8vh, 118px)
+    minmax(0, 1fr)
+    clamp(72px, 11.4vh, 94px) !important;
+  gap: clamp(4px, .55vh, 7px) !important;
+}
+
+.mainStage {
+  grid-template-rows: clamp(54px, 8.3vh, 72px) minmax(0, 1fr) clamp(102px, 15.4vh, 128px) !important;
+  gap: clamp(4px, .55vh, 7px) !important;
+}
+
+.rightRail {
+  grid-template-rows:
+    clamp(82px, 13.8vh, 116px)
+    clamp(66px, 10.5vh, 88px)
+    minmax(0, 1fr) !important;
+  gap: clamp(4px, .55vh, 7px) !important;
+}
+
+.topBar {
+  grid-template-columns: minmax(0, 1fr) clamp(142px, 11.8vw, 178px) !important;
+  gap: clamp(4px, .44vw, 7px) !important;
+}
+
+/* Board: square, slightly smaller max, never clipped. */
+.boardPanel,
+.boardCard {
+  display: grid !important;
+  place-items: center !important;
+  padding: clamp(3px, .45vw, 6px) !important;
+}
+
+.board,
+.battlefield {
+  width: var(--wf-final-board) !important;
+  height: var(--wf-final-board) !important;
+  min-width: var(--wf-final-board) !important;
+  min-height: var(--wf-final-board) !important;
+  max-width: var(--wf-final-board) !important;
+  max-height: var(--wf-final-board) !important;
+  aspect-ratio: 1 / 1 !important;
+  transform: none !important;
+}
+
+/* Rack: smaller and centered, keeping deploy/clear visible. */
+.rackCard {
+  grid-template-columns: clamp(118px, 11.8vw, 168px) minmax(0, 1fr) clamp(172px, 15.2vw, 218px) !important;
+  gap: clamp(5px, .62vw, 9px) !important;
+  padding: clamp(6px, .8vh, 9px) clamp(7px, .75vw, 12px) !important;
+  align-items: center !important;
+}
+
+.rackCard .rack,
+.rack {
+  grid-template-columns: repeat(13, clamp(25px, min(2.0vw, 4.15vh), 34px)) !important;
+  gap: clamp(3px, .31vw, 4px) !important;
+  justify-self: center !important;
+  align-self: center !important;
+  max-width: 100% !important;
+}
+
+.letterTile {
+  width: clamp(25px, min(2.0vw, 4.15vh), 34px) !important;
+  min-width: clamp(25px, min(2.0vw, 4.15vh), 34px) !important;
+  max-width: clamp(25px, min(2.0vw, 4.15vh), 34px) !important;
+  height: clamp(25px, min(2.0vw, 4.15vh), 34px) !important;
+  min-height: clamp(25px, min(2.0vw, 4.15vh), 34px) !important;
+  max-height: clamp(25px, min(2.0vw, 4.15vh), 34px) !important;
+}
+
+.letterTile span {
+  font-size: clamp(12px, 1.1vw, 17px) !important;
+}
+
+.letterTile small {
+  font-size: clamp(5px, .38vw, 6px) !important;
+}
+
+/* Action dock: tighten without clipping text. */
+.wfFooterActionDock {
+  grid-template-columns: minmax(58px, .82fr) minmax(92px, 1.18fr) !important;
+  gap: clamp(6px, .55vw, 9px) !important;
+  width: min(100%, clamp(158px, 14vw, 210px)) !important;
+  min-width: clamp(158px, 14vw, 210px) !important;
+  max-width: 210px !important;
+  justify-self: end !important;
+  align-self: center !important;
+}
+
+.wfFooterActionDock > button,
+.wfClearButton,
+.wfDeployButton {
+  height: clamp(30px, 4.75vh, 38px) !important;
+  min-height: clamp(30px, 4.75vh, 38px) !important;
+  max-height: 38px !important;
+  font-size: clamp(6px, .6vw, 8px) !important;
+  padding: 0 clamp(4px, .55vw, 7px) !important;
+}
+
+/* Text: trim just enough to fit; preserve look. */
+.brandBlock .wordmark,
+.wordmark {
+  font-size: clamp(25px, 2.25vw, 35px) !important;
+}
+
+.turnCard h2,
+.timeCard b {
+  font-size: clamp(28px, 2.75vw, 38px) !important;
+}
+
+.lobbyCard h2 {
+  font-size: clamp(19px, 1.75vw, 25px) !important;
+}
+
+.scoreCard h3,
+.botCard h3 {
+  font-size: clamp(15px, 1.25vw, 19px) !important;
+}
+
+.scoreCard b,
+.botCard b {
+  font-size: clamp(20px, 1.85vw, 26px) !important;
+}
+
+/* Bottom menu/surrender always fit. */
+.bottomButtons {
+  display: grid !important;
+  grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+  gap: clamp(5px, .7vh, 8px) !important;
+  overflow: hidden !important;
+}
+
+.bottomButtons button {
+  height: auto !important;
+  min-height: 32px !important;
+  max-height: 42px !important;
+  padding: 0 10px !important;
+}
+
+/* If Discord is especially short, reduce one more notch. */
+html.wf-discord-short .gameShell {
+  grid-template-columns: clamp(195px, 14.4vw, 245px) minmax(0, 1fr) clamp(178px, 12.7vw, 214px) !important;
+}
+
+html.wf-discord-short .rackCard .rack,
+html.wf-discord-short .rack {
+  grid-template-columns: repeat(13, clamp(24px, min(1.85vw, 3.95vh), 32px)) !important;
+}
+
+html.wf-discord-short .letterTile {
+  width: clamp(24px, min(1.85vw, 3.95vh), 32px) !important;
+  height: clamp(24px, min(1.85vw, 3.95vh), 32px) !important;
+  min-width: clamp(24px, min(1.85vw, 3.95vh), 32px) !important;
+  min-height: clamp(24px, min(1.85vw, 3.95vh), 32px) !important;
+  max-width: clamp(24px, min(1.85vw, 3.95vh), 32px) !important;
+  max-height: clamp(24px, min(1.85vw, 3.95vh), 32px) !important;
+}
