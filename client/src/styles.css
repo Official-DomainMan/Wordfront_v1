@@ -13888,3 +13888,268 @@ html.wf-discord-short .letterTile {
   max-width: clamp(24px, min(1.85vw, 3.95vh), 32px) !important;
   max-height: clamp(24px, min(1.85vw, 3.95vh), 32px) !important;
 }
+
+
+/* ==========================================================================
+   WORD FRONT v1.6.2 DISCORD WEB FIT PATCH
+   Builds on the working v1.6.x safe-fit behavior.
+   Fixes screenshot issues:
+   - right panel cards no longer visually collide
+   - board/grid fully visible
+   - rack no longer smushed into the label text
+   - clear/deploy buttons fit
+   - bottom menu stays visible
+   ========================================================================== */
+
+:root {
+  --wf-web-shell-w: min(100vw, calc((100vh - 18px) * 1.78));
+  --wf-web-shell-h: calc(100vh - 18px);
+  --wf-web-left: clamp(198px, 14.2vw, 242px);
+  --wf-web-right: clamp(172px, 12.2vw, 208px);
+  --wf-web-top: clamp(48px, 7.6vh, 64px);
+  --wf-web-rack: clamp(90px, 13.4vh, 112px);
+  --wf-web-gap: clamp(4px, .46vw, 7px);
+  --wf-web-board: min(
+    450px,
+    calc(var(--wf-web-shell-h) - var(--wf-web-top) - var(--wf-web-rack) - 32px),
+    calc(var(--wf-web-shell-w) - var(--wf-web-left) - var(--wf-web-right) - 96px)
+  );
+}
+
+.gameShell {
+  width: var(--wf-web-shell-w) !important;
+  height: var(--wf-web-shell-h) !important;
+  max-width: var(--wf-web-shell-w) !important;
+  max-height: var(--wf-web-shell-h) !important;
+  grid-template-columns: var(--wf-web-left) minmax(0, 1fr) var(--wf-web-right) !important;
+  gap: var(--wf-web-gap) !important;
+  padding: var(--wf-web-gap) !important;
+  margin: 0 auto !important;
+  overflow: hidden !important;
+}
+
+/* vertical layout */
+.leftRail {
+  grid-template-rows:
+    var(--wf-web-top)
+    clamp(70px, 10.4vh, 88px)
+    clamp(84px, 13.6vh, 108px)
+    clamp(78px, 12.4vh, 100px)
+    minmax(0, 1fr)
+    clamp(66px, 10.2vh, 82px) !important;
+  gap: var(--wf-web-gap) !important;
+}
+
+.mainStage {
+  grid-template-rows: var(--wf-web-top) minmax(0, 1fr) var(--wf-web-rack) !important;
+  gap: var(--wf-web-gap) !important;
+}
+
+/* Right rail: make rules + territory fit without overlapping the legend */
+.rightRail {
+  grid-template-rows:
+    clamp(98px, 15.2vh, 122px)
+    clamp(72px, 10.9vh, 86px)
+    minmax(0, 1fr) !important;
+  gap: var(--wf-web-gap) !important;
+}
+
+.rulesCard,
+.territoryCard,
+.legendCard {
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.rulesCard {
+  padding: clamp(8px, .85vw, 12px) !important;
+}
+
+.rulesCard li {
+  font-size: clamp(9px, .72vw, 11px) !important;
+  line-height: 1.25 !important;
+}
+
+.legendCard {
+  padding: clamp(10px, .95vw, 14px) !important;
+}
+
+.legendCard p {
+  font-size: clamp(9px, .75vw, 11px) !important;
+  line-height: 1.22 !important;
+  margin: 0 !important;
+}
+
+.legendList,
+.legendCard ul,
+.legendCard .legendItems {
+  gap: clamp(5px, .65vh, 8px) !important;
+}
+
+/* header fit */
+.topBar {
+  grid-template-columns: minmax(0, 1fr) clamp(132px, 10.6vw, 164px) !important;
+  gap: var(--wf-web-gap) !important;
+}
+
+.brandBlock .wordmark,
+.wordmark {
+  font-size: clamp(22px, 2.05vw, 32px) !important;
+}
+
+.turnCard h2,
+.timeCard b {
+  font-size: clamp(26px, 2.55vw, 35px) !important;
+}
+
+/* board/grid */
+.boardPanel,
+.boardCard {
+  padding: clamp(3px, .36vw, 5px) !important;
+}
+
+.board,
+.battlefield {
+  width: var(--wf-web-board) !important;
+  height: var(--wf-web-board) !important;
+  min-width: var(--wf-web-board) !important;
+  min-height: var(--wf-web-board) !important;
+  max-width: var(--wf-web-board) !important;
+  max-height: var(--wf-web-board) !important;
+  aspect-ratio: 1 / 1 !important;
+  transform: none !important;
+}
+
+/* rack: give label and actions enough room, and shrink tiles enough for Discord Web */
+.rackCard {
+  grid-template-columns: clamp(126px, 11.2vw, 150px) minmax(0, 1fr) clamp(162px, 13.2vw, 190px) !important;
+  gap: clamp(5px, .5vw, 8px) !important;
+  padding: clamp(5px, .65vh, 8px) clamp(6px, .65vw, 10px) !important;
+  align-items: center !important;
+}
+
+.rackHeader,
+.rackCard > div:first-child {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  z-index: 2 !important;
+}
+
+.rackHeader .eyebrow,
+.rackCard .eyebrow {
+  font-size: clamp(7px, .62vw, 9px) !important;
+  line-height: 1.05 !important;
+  letter-spacing: .16em !important;
+}
+
+.hintLine,
+.rackHeader .hintLine {
+  font-size: clamp(8px, .68vw, 10px) !important;
+  line-height: 1.12 !important;
+}
+
+.rackCard .rack,
+.rack {
+  grid-template-columns: repeat(13, clamp(22px, min(1.55vw, 3.45vh), 29px)) !important;
+  gap: clamp(2px, .24vw, 4px) !important;
+  justify-self: center !important;
+  align-self: center !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+
+.letterTile {
+  width: clamp(22px, min(1.55vw, 3.45vh), 29px) !important;
+  height: clamp(22px, min(1.55vw, 3.45vh), 29px) !important;
+  min-width: clamp(22px, min(1.55vw, 3.45vh), 29px) !important;
+  min-height: clamp(22px, min(1.55vw, 3.45vh), 29px) !important;
+  max-width: clamp(22px, min(1.55vw, 3.45vh), 29px) !important;
+  max-height: clamp(22px, min(1.55vw, 3.45vh), 29px) !important;
+}
+
+.letterTile span {
+  font-size: clamp(11px, .95vw, 15px) !important;
+}
+
+.letterTile small {
+  font-size: clamp(4px, .33vw, 5px) !important;
+}
+
+/* buttons */
+.wfFooterActionDock {
+  grid-template-columns: minmax(54px, .82fr) minmax(86px, 1.18fr) !important;
+  gap: clamp(5px, .45vw, 7px) !important;
+  width: min(100%, clamp(150px, 12.4vw, 184px)) !important;
+  min-width: clamp(150px, 12.4vw, 184px) !important;
+  max-width: 184px !important;
+  justify-self: end !important;
+  align-self: center !important;
+}
+
+.wfFooterActionDock > button,
+.wfClearButton,
+.wfDeployButton {
+  height: clamp(28px, 4.2vh, 34px) !important;
+  min-height: clamp(28px, 4.2vh, 34px) !important;
+  max-height: 34px !important;
+  font-size: clamp(5px, .52vw, 7px) !important;
+  padding: 0 clamp(3px, .45vw, 6px) !important;
+}
+
+/* left rail text and bottom buttons */
+.lobbyCard h2 {
+  font-size: clamp(18px, 1.6vw, 23px) !important;
+}
+
+.scoreCard h3,
+.botCard h3 {
+  font-size: clamp(14px, 1.15vw, 18px) !important;
+}
+
+.scoreCard b,
+.botCard b {
+  font-size: clamp(18px, 1.65vw, 24px) !important;
+}
+
+.bottomButtons {
+  grid-template-rows: repeat(2, 1fr) !important;
+  gap: clamp(4px, .55vh, 7px) !important;
+  overflow: hidden !important;
+}
+
+.bottomButtons button {
+  min-height: 28px !important;
+  height: auto !important;
+  max-height: 38px !important;
+  padding: 0 8px !important;
+}
+
+/* Very short Discord iframe fallback */
+html.wf-discord-short {
+  --wf-web-board: min(
+    425px,
+    calc(var(--wf-web-shell-h) - var(--wf-web-top) - var(--wf-web-rack) - 32px),
+    calc(var(--wf-web-shell-w) - var(--wf-web-left) - var(--wf-web-right) - 90px)
+  );
+}
+
+html.wf-discord-short .rightRail {
+  grid-template-rows:
+    clamp(90px, 14.4vh, 110px)
+    clamp(68px, 10.4vh, 82px)
+    minmax(0, 1fr) !important;
+}
+
+html.wf-discord-short .rackCard .rack,
+html.wf-discord-short .rack {
+  grid-template-columns: repeat(13, clamp(21px, min(1.48vw, 3.25vh), 27px)) !important;
+}
+
+html.wf-discord-short .letterTile {
+  width: clamp(21px, min(1.48vw, 3.25vh), 27px) !important;
+  height: clamp(21px, min(1.48vw, 3.25vh), 27px) !important;
+  min-width: clamp(21px, min(1.48vw, 3.25vh), 27px) !important;
+  min-height: clamp(21px, min(1.48vw, 3.25vh), 27px) !important;
+  max-width: clamp(21px, min(1.48vw, 3.25vh), 27px) !important;
+  max-height: clamp(21px, min(1.48vw, 3.25vh), 27px) !important;
+}
