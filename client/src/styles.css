@@ -13691,3 +13691,283 @@ html.wf-discord-short .bottomButtons button {
   transform: none !important;
   z-index: 2147483647 !important;
 }
+
+
+/* ==========================================================================
+   WORD FRONT v1.7.0 CURRENT CLEAN FIT
+   Built from the uploaded current repo only.
+
+   Main fix:
+   - v1.6.0 capped .gameShell width with calc(100vh * 1.96), which makes
+     Discord Web squeeze the entire UI horizontally.
+   - This restores full iframe width and then uses smaller, stable row/column
+     tracks so panels, board, rack, and bottom buttons fit inside Discord Web.
+   ========================================================================== */
+
+:root {
+  --wf-fit-gap: clamp(4px, .42vw, 8px);
+  --wf-fit-pad: clamp(4px, .42vw, 8px);
+  --wf-fit-left: clamp(230px, 17vw, 300px);
+  --wf-fit-right: clamp(230px, 17vw, 300px);
+  --wf-fit-top: clamp(58px, 9.2vh, 78px);
+  --wf-fit-rack: clamp(104px, 17.2vh, 136px);
+  --wf-fit-board: min(
+    560px,
+    calc(100vh - var(--wf-fit-top) - var(--wf-fit-rack) - (var(--wf-fit-gap) * 5) - (var(--wf-fit-pad) * 2) - 8px),
+    calc(100vw - var(--wf-fit-left) - var(--wf-fit-right) - (var(--wf-fit-gap) * 8) - (var(--wf-fit-pad) * 2))
+  );
+}
+
+html,
+body,
+#root,
+.app {
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.gameShell {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  padding: var(--wf-fit-pad) !important;
+  gap: var(--wf-fit-gap) !important;
+  grid-template-columns: var(--wf-fit-left) minmax(0, 1fr) var(--wf-fit-right) !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  transform: none !important;
+  zoom: 1 !important;
+}
+
+/* Keep right rail visible even if old classes are set. */
+html.wf-ultra-narrow .rightRail,
+.rightRail {
+  display: grid !important;
+}
+
+.leftRail,
+.mainStage,
+.rightRail,
+.topBar,
+.boardPanel,
+.rackCard {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.leftRail {
+  display: grid !important;
+  grid-template-rows:
+    var(--wf-fit-top)
+    clamp(78px, 12.6vh, 110px)
+    clamp(94px, 16.2vh, 145px)
+    clamp(88px, 14.8vh, 132px)
+    minmax(0, 1fr)
+    clamp(74px, 12vh, 98px) !important;
+  gap: var(--wf-fit-gap) !important;
+}
+
+.mainStage {
+  display: grid !important;
+  grid-template-rows: var(--wf-fit-top) minmax(0, 1fr) var(--wf-fit-rack) !important;
+  gap: var(--wf-fit-gap) !important;
+}
+
+.rightRail {
+  display: grid !important;
+  grid-template-rows:
+    clamp(92px, 16.4vh, 138px)
+    clamp(76px, 12.6vh, 108px)
+    minmax(0, 1fr) !important;
+  gap: var(--wf-fit-gap) !important;
+}
+
+.topBar {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) clamp(150px, 12.5vw, 220px) !important;
+  gap: var(--wf-fit-gap) !important;
+}
+
+/* Board/grid: square, visible, and never clipped. */
+.boardPanel {
+  display: grid !important;
+  place-items: center !important;
+  padding: clamp(4px, .45vw, 8px) !important;
+}
+
+.battlefield,
+.board {
+  width: var(--wf-fit-board) !important;
+  height: var(--wf-fit-board) !important;
+  min-width: var(--wf-fit-board) !important;
+  min-height: var(--wf-fit-board) !important;
+  max-width: var(--wf-fit-board) !important;
+  max-height: var(--wf-fit-board) !important;
+  aspect-ratio: 1 / 1 !important;
+  transform: none !important;
+}
+
+/* Rack: separate label, tiles, and buttons so they do not overlap. */
+.rackCard {
+  display: grid !important;
+  grid-template-columns: clamp(140px, 11vw, 190px) minmax(0, 1fr) clamp(190px, 15vw, 260px) !important;
+  grid-template-rows: 1fr !important;
+  align-items: center !important;
+  gap: clamp(6px, .6vw, 12px) !important;
+  padding: clamp(6px, .9vh, 10px) clamp(8px, .8vw, 14px) !important;
+  overflow: hidden !important;
+}
+
+.rackHeader,
+.rackCard > div:first-child {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  z-index: 2 !important;
+}
+
+.rackHeader .eyebrow,
+.rackCard .eyebrow {
+  font-size: clamp(7px, .7vw, 10px) !important;
+  line-height: 1.05 !important;
+  letter-spacing: .16em !important;
+}
+
+.hintLine,
+.rackHeader .hintLine {
+  font-size: clamp(8px, .75vw, 11px) !important;
+  line-height: 1.12 !important;
+}
+
+.rackCard .rack,
+.rack {
+  display: grid !important;
+  grid-template-columns: repeat(13, clamp(25px, min(2vw, 4.25vh), 34px)) !important;
+  gap: clamp(3px, .28vw, 5px) !important;
+  width: max-content !important;
+  max-width: 100% !important;
+  justify-self: center !important;
+  align-self: center !important;
+  overflow: visible !important;
+  margin: 0 !important;
+}
+
+.letterTile {
+  width: clamp(25px, min(2vw, 4.25vh), 34px) !important;
+  height: clamp(25px, min(2vw, 4.25vh), 34px) !important;
+  min-width: clamp(25px, min(2vw, 4.25vh), 34px) !important;
+  min-height: clamp(25px, min(2vw, 4.25vh), 34px) !important;
+  max-width: clamp(25px, min(2vw, 4.25vh), 34px) !important;
+  max-height: clamp(25px, min(2vw, 4.25vh), 34px) !important;
+}
+
+.letterTile span {
+  font-size: clamp(12px, 1.1vw, 17px) !important;
+}
+
+.letterTile small {
+  font-size: clamp(5px, .38vw, 6px) !important;
+}
+
+/* Button dock. */
+.wfFooterActionDock {
+  display: grid !important;
+  grid-template-columns: minmax(62px, .82fr) minmax(98px, 1.18fr) !important;
+  gap: clamp(6px, .55vw, 10px) !important;
+  width: min(100%, clamp(172px, 14vw, 230px)) !important;
+  min-width: clamp(172px, 14vw, 230px) !important;
+  max-width: 230px !important;
+  justify-self: end !important;
+  align-self: center !important;
+  overflow: visible !important;
+}
+
+.wfFooterActionDock > button,
+.wfClearButton,
+.wfDeployButton {
+  height: clamp(30px, 4.8vh, 38px) !important;
+  min-height: clamp(30px, 4.8vh, 38px) !important;
+  max-height: 38px !important;
+  padding: 0 clamp(4px, .55vw, 8px) !important;
+  font-size: clamp(6px, .58vw, 8px) !important;
+  white-space: nowrap !important;
+}
+
+/* Right rail: stop overlap between current rules / territory / legend. */
+.rulesCard,
+.territoryCard,
+.legendCard {
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.rulesCard {
+  padding: clamp(8px, .85vw, 14px) !important;
+}
+
+.rulesCard li {
+  font-size: clamp(9px, .76vw, 12px) !important;
+  line-height: 1.28 !important;
+}
+
+.territoryCard {
+  padding: clamp(10px, .9vw, 14px) !important;
+}
+
+.legendCard {
+  padding: clamp(12px, .95vw, 16px) !important;
+}
+
+.legendCard p {
+  font-size: clamp(10px, .78vw, 12px) !important;
+  line-height: 1.28 !important;
+}
+
+.legendList,
+.legendCard ul,
+.legendCard .legendItems {
+  gap: clamp(6px, .75vh, 10px) !important;
+}
+
+/* Left rail bottom buttons stay visible. */
+.bottomButtons {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: clamp(6px, .65vw, 10px) !important;
+  overflow: hidden !important;
+}
+
+.bottomButtons button {
+  min-height: 32px !important;
+  max-height: 44px !important;
+  height: clamp(34px, 5.5vh, 42px) !important;
+}
+
+/* On short Discord web iframes, shrink only board/rack—not the whole design. */
+html.wf-discord-short {
+  --wf-fit-board: min(
+    500px,
+    calc(100vh - var(--wf-fit-top) - var(--wf-fit-rack) - (var(--wf-fit-gap) * 5) - (var(--wf-fit-pad) * 2) - 8px),
+    calc(100vw - var(--wf-fit-left) - var(--wf-fit-right) - (var(--wf-fit-gap) * 8) - (var(--wf-fit-pad) * 2))
+  );
+}
+
+html.wf-discord-short .rackCard .rack,
+html.wf-discord-short .rack {
+  grid-template-columns: repeat(13, clamp(24px, min(1.85vw, 4vh), 32px)) !important;
+}
+
+html.wf-discord-short .letterTile {
+  width: clamp(24px, min(1.85vw, 4vh), 32px) !important;
+  height: clamp(24px, min(1.85vw, 4vh), 32px) !important;
+  min-width: clamp(24px, min(1.85vw, 4vh), 32px) !important;
+  min-height: clamp(24px, min(1.85vw, 4vh), 32px) !important;
+  max-width: clamp(24px, min(1.85vw, 4vh), 32px) !important;
+  max-height: clamp(24px, min(1.85vw, 4vh), 32px) !important;
+}

@@ -86,7 +86,7 @@ const [selectedLetter, setSelectedLetter] = useState(null);
         const vh = Math.max(1, window.visualViewport?.height || window.innerHeight || root.clientHeight || 1);
 
         /*
-          The UI itself remains v1.3.0.
+          The UI itself remains v1.7.0.
           These variables only let CSS decide whether the shell should gently fit
           to smaller Discord frames without re-laying out individual panels.
         */
@@ -369,7 +369,7 @@ function makeBoardKey(next) {
       <aside className="leftRail">
         <section className="brandBlock">
           <h1 className="wordmark" data-text="WORDFRONT">WORDFRONT</h1>
-          <p>v1.6.0</p>
+          <p>v1.7.0</p>
         </section>
         <section className="card lobbyCard">
           <p className="eyebrow">LOBBY</p>
