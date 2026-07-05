@@ -13583,20 +13583,22 @@ html.wf-ultra-narrow .rightRail,
 
 
 /* ==========================================================================
-   WORD FRONT v2.0.0 RENDERER FOUNDATION
-   Game-style renderer architecture:
-   - A fixed 1600x900 virtual scene.
-   - One scale factor on the scene.
-   - Wordfront's existing v1.3 visual UI lives inside that scene.
-   - No platform-specific responsive panel/rack/grid resizing.
+   WORD FRONT v1.6.0 VIEWPORT WRAPPER / SAFE FIT PASS
+   Starts from v1.3.0 visual UI. This patch avoids changing panel/rack/board
+   internals. It only stabilizes the outer game shell across Discord Web,
+   Discord Desktop, and Railway.
+
+   Rules:
+   - No fixed-canvas transform.
+   - No .wfGameStage wrapper.
+   - No hardcoded panel grid tracks.
+   - Only the outer shell and short-viewport fallback are adjusted.
    ========================================================================== */
 
 :root {
-  --wf-renderer-w: 1600px;
-  --wf-renderer-h: 900px;
-  --wf-renderer-scale: 1;
-  --wf-renderer-vw: 100vw;
-  --wf-renderer-vh: 100vh;
+  --wf-vw: 100vw;
+  --wf-vh: 100vh;
+  --wf-vmin: 100vmin;
   color-scheme: dark !important;
 }
 
@@ -13608,292 +13610,82 @@ body,
   height: 100vh !important;
   min-width: 0 !important;
   min-height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
   overflow: hidden !important;
 }
 
-/* Home remains normal. Only gameplay gets the renderer scene. */
-.homeShell {
-  width: 100vw !important;
+/*
+  Keep the v1.3 layout, but center the whole game frame consistently.
+  Browser Discord was stretching width differently than desktop Discord;
+  using an aspect-constrained width prevents that without changing internals.
+*/
+.gameShell {
+  width: min(100vw, calc(100vh * 1.96)) !important;
   height: 100vh !important;
-  min-width: 0 !important;
-  min-height: 0 !important;
-}
-
-/* Viewport: fills whatever Discord/Railway gives us. */
-.wfRendererViewport {
-  position: fixed !important;
-  inset: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  min-width: 0 !important;
-  min-height: 0 !important;
-  overflow: hidden !important;
-  display: grid !important;
-  place-items: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  background:
-    radial-gradient(circle at 0% 100%, rgba(182,106,255,.16), transparent 30%),
-    radial-gradient(circle at 100% 100%, rgba(185,255,25,.10), transparent 26%),
-    linear-gradient(135deg, #02040a 0%, #071122 58%, #02040a 100%) !important;
-}
-
-/* Scene: this is the only scaled object. */
-.wfRendererScene {
-  width: var(--wf-renderer-w) !important;
-  height: var(--wf-renderer-h) !important;
-  min-width: var(--wf-renderer-w) !important;
-  min-height: var(--wf-renderer-h) !important;
-  max-width: var(--wf-renderer-w) !important;
-  max-height: var(--wf-renderer-h) !important;
-  transform: scale(var(--wf-renderer-scale)) !important;
-  transform-origin: center center !important;
-  overflow: hidden !important;
-  position: relative !important;
-  box-sizing: border-box !important;
-}
-
-/* Existing game shell becomes the fixed virtual UI. */
-.wfRendererScene > .gameShell {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 1600px !important;
-  height: 900px !important;
-  min-width: 1600px !important;
-  min-height: 900px !important;
-  max-width: 1600px !important;
-  max-height: 900px !important;
-
-  margin: 0 !important;
-  padding: 8px !important;
-  box-sizing: border-box !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  margin: 0 auto !important;
   overflow: hidden !important;
   transform: none !important;
   zoom: 1 !important;
-  aspect-ratio: auto !important;
-
-  display: grid !important;
-  grid-template-columns: 270px minmax(0, 1fr) 250px !important;
-  grid-template-rows: minmax(0, 1fr) !important;
-  gap: 8px !important;
+  box-sizing: border-box !important;
 }
 
-/* Kill old breakpoint class effects inside renderer. */
-html.wf-compact .wfRendererScene > .gameShell,
-html.wf-short .wfRendererScene > .gameShell,
-html.wf-narrow .wfRendererScene > .gameShell,
-html.wf-ultra-narrow .wfRendererScene > .gameShell {
-  width: 1600px !important;
-  height: 900px !important;
-  min-width: 1600px !important;
-  min-height: 900px !important;
-  max-width: 1600px !important;
-  max-height: 900px !important;
-  grid-template-columns: 270px minmax(0, 1fr) 250px !important;
-  transform: none !important;
-}
-
+/* Older breakpoint classes must not hide the right rail or change the macro layout. */
 html.wf-ultra-narrow .rightRail,
-.wfRendererScene .rightRail {
+.rightRail {
   display: grid !important;
 }
 
-/* Renderer-internal layout. These are fixed virtual pixels. */
-.wfRendererScene .leftRail,
-.wfRendererScene .mainStage,
-.wfRendererScene .rightRail,
-.wfRendererScene .topBar,
-.wfRendererScene .boardPanel,
-.wfRendererScene .boardCard,
-.wfRendererScene .rackCard {
-  min-width: 0 !important;
+/*
+  Discord short viewports need bottom controls kept inside the left rail.
+  This is the issue visible in your v1.5 screenshot: menu clipped off the bottom.
+  We only reduce the spacer, not the visual cards.
+*/
+html.wf-discord-short .leftRail {
   min-height: 0 !important;
   overflow: hidden !important;
 }
 
-.wfRendererScene .leftRail {
-  display: grid !important;
-  grid-template-rows: 78px 116px 160px 144px minmax(0, 1fr) 104px !important;
-  gap: 8px !important;
-}
-
-.wfRendererScene .mainStage {
-  display: grid !important;
-  grid-template-rows: 78px minmax(0, 1fr) 132px !important;
-  gap: 8px !important;
-}
-
-.wfRendererScene .rightRail {
-  display: grid !important;
-  grid-template-rows: 132px 102px minmax(0, 1fr) !important;
-  gap: 8px !important;
-}
-
-.wfRendererScene .topBar {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) 190px !important;
-  gap: 8px !important;
-}
-
-/* Board: fixed in the virtual scene, identical everywhere after scale. */
-.wfRendererScene .boardPanel,
-.wfRendererScene .boardCard {
-  display: grid !important;
-  place-items: center !important;
-  padding: 7px !important;
-}
-
-.wfRendererScene .board,
-.wfRendererScene .battlefield {
-  width: 560px !important;
-  height: 560px !important;
-  min-width: 560px !important;
-  min-height: 560px !important;
-  max-width: 560px !important;
-  max-height: 560px !important;
-  aspect-ratio: 1 / 1 !important;
-  transform: none !important;
-}
-
-/* Rack/action: fixed virtual layout, no more platform smushing. */
-.wfRendererScene .rackCard {
-  display: grid !important;
-  grid-template-columns: 190px minmax(0, 1fr) 250px !important;
-  grid-template-rows: 1fr !important;
-  align-items: center !important;
-  gap: 10px !important;
-  padding: 10px 14px !important;
-}
-
-.wfRendererScene .rackCard .rack,
-.wfRendererScene .rack {
-  display: grid !important;
-  grid-template-columns: repeat(13, 34px) !important;
-  gap: 5px !important;
-  width: max-content !important;
-  max-width: none !important;
-  justify-self: center !important;
-  align-self: center !important;
-  margin: 0 !important;
-  overflow: visible !important;
-}
-
-.wfRendererScene .letterTile {
-  width: 34px !important;
-  height: 34px !important;
-  min-width: 34px !important;
-  min-height: 34px !important;
-  max-width: 34px !important;
-  max-height: 34px !important;
-}
-
-.wfRendererScene .letterTile span {
-  font-size: 17px !important;
-}
-
-.wfRendererScene .letterTile small {
-  font-size: 6px !important;
-}
-
-.wfRendererScene .wfFooterActionDock {
-  display: grid !important;
-  grid-template-columns: 76px 122px !important;
-  gap: 10px !important;
-  width: 208px !important;
-  min-width: 208px !important;
-  max-width: 208px !important;
-  justify-self: end !important;
-  align-self: center !important;
-  z-index: 10 !important;
-}
-
-.wfRendererScene .wfFooterActionDock > button,
-.wfRendererScene .wfClearButton,
-.wfRendererScene .wfDeployButton {
-  height: 38px !important;
-  min-height: 38px !important;
-  max-height: 38px !important;
-  padding: 0 7px !important;
-  border-radius: 9px !important;
-  font-size: 8px !important;
-  line-height: 1.05 !important;
-  white-space: nowrap !important;
-}
-
-/* Type sizes locked in virtual pixels. */
-.wfRendererScene .brandBlock .wordmark,
-.wfRendererScene .wordmark {
-  font-size: 36px !important;
-  line-height: .86 !important;
-  letter-spacing: -.10em !important;
-  transform: scaleX(.62) skewX(-7deg) !important;
-  transform-origin: left center !important;
-}
-
-.wfRendererScene .turnCard h2 {
-  font-size: 38px !important;
-  line-height: .9 !important;
-}
-
-.wfRendererScene .timeCard b {
-  font-size: 38px !important;
-  line-height: .9 !important;
-}
-
-.wfRendererScene .lobbyCard h2 {
-  font-size: 26px !important;
-  line-height: 1 !important;
-}
-
-.wfRendererScene .scoreCard h3,
-.wfRendererScene .botCard h3 {
-  font-size: 19px !important;
-  line-height: 1.05 !important;
-}
-
-.wfRendererScene .scoreCard b,
-.wfRendererScene .botCard b {
-  font-size: 26px !important;
-  line-height: 1 !important;
-}
-
-.wfRendererScene .rulesCard li,
-.wfRendererScene .legendCard p {
-  font-size: 11px !important;
-  line-height: 1.3 !important;
-}
-
-.wfRendererScene .rackHeader .eyebrow,
-.wfRendererScene .rackCard .eyebrow {
-  font-size: 9px !important;
-  letter-spacing: .18em !important;
-}
-
-.wfRendererScene .hintLine,
-.wfRendererScene .rackHeader .hintLine {
-  font-size: 10px !important;
-}
-
-/* Bottom buttons always inside the virtual layout. */
-.wfRendererScene .bottomButtons {
-  display: grid !important;
-  grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
-  gap: 8px !important;
+/* Make bottom buttons always stay inside the visible left column. */
+html.wf-discord-short .bottomButtons,
+.bottomButtons {
+  min-height: 0 !important;
+  max-height: 100% !important;
   overflow: hidden !important;
 }
 
-.wfRendererScene .bottomButtons button {
-  height: auto !important;
-  min-height: 38px !important;
-  max-height: 46px !important;
+html.wf-discord-short .bottomButtons button {
+  min-height: 34px !important;
+  height: 38px !important;
+  max-height: 42px !important;
 }
 
-/* Overlays are viewport-native and not scaled with the game scene. */
-.wfHelpOverlay,
-.modalOverlay,
-.soloSetupOverlay {
+/*
+  Keep the board square when Discord Web compresses height.
+  This is intentionally gentle and uses the existing v1.3 board styling.
+*/
+.board,
+.battlefield {
+  aspect-ratio: 1 / 1 !important;
+}
+
+/* Keep rack action buttons visible without resizing the whole UI. */
+.wfFooterActionDock {
+  justify-self: end !important;
+  align-self: center !important;
+  z-index: 20 !important;
+  overflow: visible !important;
+}
+
+.wfClearButton,
+.wfDeployButton {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+}
+
+/* Help overlay remains viewport-native. */
+.wfHelpOverlay {
   position: fixed !important;
   inset: 0 !important;
   transform: none !important;

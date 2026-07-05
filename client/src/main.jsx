@@ -78,36 +78,37 @@ const [selectedLetter, setSelectedLetter] = useState(null);
   useEffect(() => {
     let rafId = 0;
 
-    const updateWordfrontRendererScale = () => {
+    const updateWordfrontViewportScaler = () => {
       cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
         const root = document.documentElement;
         const vw = Math.max(1, window.visualViewport?.width || window.innerWidth || root.clientWidth || 1);
         const vh = Math.max(1, window.visualViewport?.height || window.innerHeight || root.clientHeight || 1);
 
-        const designWidth = 1600;
-        const designHeight = 900;
-        const scale = Math.min(vw / designWidth, vh / designHeight);
-
-        root.style.setProperty("--wf-renderer-w", `${designWidth}px`);
-        root.style.setProperty("--wf-renderer-h", `${designHeight}px`);
-        root.style.setProperty("--wf-renderer-scale", String(scale));
-        root.style.setProperty("--wf-renderer-vw", `${vw}px`);
-        root.style.setProperty("--wf-renderer-vh", `${vh}px`);
+        /*
+          The UI itself remains v1.3.0.
+          These variables only let CSS decide whether the shell should gently fit
+          to smaller Discord frames without re-laying out individual panels.
+        */
+        root.style.setProperty("--wf-vw", `${vw}px`);
+        root.style.setProperty("--wf-vh", `${vh}px`);
+        root.style.setProperty("--wf-vmin", `${Math.min(vw, vh)}px`);
+        root.classList.toggle("wf-discord-short", vh < 700);
+        root.classList.toggle("wf-discord-tight", vw < 1400 || vh < 720);
       });
     };
 
-    updateWordfrontRendererScale();
+    updateWordfrontViewportScaler();
 
-    window.addEventListener("resize", updateWordfrontRendererScale);
-    window.addEventListener("orientationchange", updateWordfrontRendererScale);
-    window.visualViewport?.addEventListener("resize", updateWordfrontRendererScale);
+    window.addEventListener("resize", updateWordfrontViewportScaler);
+    window.addEventListener("orientationchange", updateWordfrontViewportScaler);
+    window.visualViewport?.addEventListener("resize", updateWordfrontViewportScaler);
 
     return () => {
       cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", updateWordfrontRendererScale);
-      window.removeEventListener("orientationchange", updateWordfrontRendererScale);
-      window.visualViewport?.removeEventListener("resize", updateWordfrontRendererScale);
+      window.removeEventListener("resize", updateWordfrontViewportScaler);
+      window.removeEventListener("orientationchange", updateWordfrontViewportScaler);
+      window.visualViewport?.removeEventListener("resize", updateWordfrontViewportScaler);
     };
   }, []);
 
@@ -364,13 +365,11 @@ function makeBoardKey(next) {
   const rivalPercent = 100 - myPercent;
 
   return (
-    <main className="wfRendererViewport">
-      <section className="wfRendererScene">
-        <div className="gameShell">
+    <main className="gameShell">
       <aside className="leftRail">
         <section className="brandBlock">
           <h1 className="wordmark" data-text="WORDFRONT">WORDFRONT</h1>
-          <p>v2.0.0</p>
+          <p>v1.6.0</p>
         </section>
         <section className="card lobbyCard">
           <p className="eyebrow">LOBBY</p>
@@ -619,8 +618,6 @@ function makeBoardKey(next) {
         </div>
       )}
 
-        </div>
-      </section>
     </main>
   );
 }
