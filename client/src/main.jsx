@@ -78,42 +78,45 @@ const [selectedLetter, setSelectedLetter] = useState(null);
   useEffect(() => {
     let rafId = 0;
 
-    const updateWordfrontViewportScaler = () => {
+    const updateWordfrontWideSceneScale = () => {
       cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
         const root = document.documentElement;
-        const vw = Math.max(1, window.visualViewport?.width || window.innerWidth || root.clientWidth || 1);
-        const vh = Math.max(1, window.visualViewport?.height || window.innerHeight || root.clientHeight || 1);
+        const viewportWidth = Math.max(1, window.visualViewport?.width || window.innerWidth || root.clientWidth || 1);
+        const viewportHeight = Math.max(1, window.visualViewport?.height || window.innerHeight || root.clientHeight || 1);
 
         /*
-          The UI itself remains v1.7.0.
-          These variables only let CSS decide whether the shell should gently fit
-          to smaller Discord frames without re-laying out individual panels.
+          Wide virtual scene: Wordfront is a wide board-game UI, not a 16:9 video.
+          1920x860 keeps the original side-panel / board / rack proportions while
+          fitting Discord Web's short, wide iframe better than 1600x900.
         */
-        root.style.setProperty("--wf-vw", `${vw}px`);
-        root.style.setProperty("--wf-vh", `${vh}px`);
-        root.style.setProperty("--wf-vmin", `${Math.min(vw, vh)}px`);
-        root.classList.toggle("wf-discord-short", vh < 700);
-        root.classList.toggle("wf-discord-tight", vw < 1400 || vh < 720);
+        const sceneWidth = 1920;
+        const sceneHeight = 860;
+        const scale = Math.min(viewportWidth / sceneWidth, viewportHeight / sceneHeight);
+
+        root.style.setProperty("--wf-scene-w", `${sceneWidth}px`);
+        root.style.setProperty("--wf-scene-h", `${sceneHeight}px`);
+        root.style.setProperty("--wf-scene-scale", String(scale));
+        root.style.setProperty("--wf-real-vw", `${viewportWidth}px`);
+        root.style.setProperty("--wf-real-vh", `${viewportHeight}px`);
       });
     };
 
-    updateWordfrontViewportScaler();
+    updateWordfrontWideSceneScale();
 
-    window.addEventListener("resize", updateWordfrontViewportScaler);
-    window.addEventListener("orientationchange", updateWordfrontViewportScaler);
-    window.visualViewport?.addEventListener("resize", updateWordfrontViewportScaler);
+    window.addEventListener("resize", updateWordfrontWideSceneScale);
+    window.addEventListener("orientationchange", updateWordfrontWideSceneScale);
+    window.visualViewport?.addEventListener("resize", updateWordfrontWideSceneScale);
 
     return () => {
       cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", updateWordfrontViewportScaler);
-      window.removeEventListener("orientationchange", updateWordfrontViewportScaler);
-      window.visualViewport?.removeEventListener("resize", updateWordfrontViewportScaler);
+      window.removeEventListener("resize", updateWordfrontWideSceneScale);
+      window.removeEventListener("orientationchange", updateWordfrontWideSceneScale);
+      window.visualViewport?.removeEventListener("resize", updateWordfrontWideSceneScale);
     };
   }, []);
 
-
-  useEffect(() => {
+useEffect(() => {
     let cancelled = false;
     initDiscordActivity()
       .then((ctx) => {
@@ -365,11 +368,13 @@ function makeBoardKey(next) {
   const rivalPercent = 100 - myPercent;
 
   return (
-    <main className="gameShell">
+    <main className="wfSceneViewport">
+      <section className="wfScene">
+        <div className="gameShell">
       <aside className="leftRail">
         <section className="brandBlock">
           <h1 className="wordmark" data-text="WORDFRONT">WORDFRONT</h1>
-          <p>v1.7.0</p>
+          <p>v1.8.0</p>
         </section>
         <section className="card lobbyCard">
           <p className="eyebrow">LOBBY</p>
@@ -618,6 +623,8 @@ function makeBoardKey(next) {
         </div>
       )}
 
+        </div>
+      </section>
     </main>
   );
 }

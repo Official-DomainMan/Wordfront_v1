@@ -13582,37 +13582,6 @@ html.wf-ultra-narrow .rightRail,
 }
 
 
-/* ==========================================================================
-   WORD FRONT v1.6.0 VIEWPORT WRAPPER / SAFE FIT PASS
-   Starts from v1.3.0 visual UI. This patch avoids changing panel/rack/board
-   internals. It only stabilizes the outer game shell across Discord Web,
-   Discord Desktop, and Railway.
-
-   Rules:
-   - No fixed-canvas transform.
-   - No .wfGameStage wrapper.
-   - No hardcoded panel grid tracks.
-   - Only the outer shell and short-viewport fallback are adjusted.
-   ========================================================================== */
-
-:root {
-  --wf-vw: 100vw;
-  --wf-vh: 100vh;
-  --wf-vmin: 100vmin;
-  color-scheme: dark !important;
-}
-
-html,
-body,
-#root,
-.app {
-  width: 100vw !important;
-  height: 100vh !important;
-  min-width: 0 !important;
-  min-height: 0 !important;
-  overflow: hidden !important;
-}
-
 /*
   Keep the v1.3 layout, but center the whole game frame consistently.
   Browser Discord was stretching width differently than desktop Discord;
@@ -13692,58 +13661,6 @@ html.wf-discord-short .bottomButtons button {
   z-index: 2147483647 !important;
 }
 
-
-/* ==========================================================================
-   WORD FRONT v1.7.0 CURRENT CLEAN FIT
-   Built from the uploaded current repo only.
-
-   Main fix:
-   - v1.6.0 capped .gameShell width with calc(100vh * 1.96), which makes
-     Discord Web squeeze the entire UI horizontally.
-   - This restores full iframe width and then uses smaller, stable row/column
-     tracks so panels, board, rack, and bottom buttons fit inside Discord Web.
-   ========================================================================== */
-
-:root {
-  --wf-fit-gap: clamp(4px, .42vw, 8px);
-  --wf-fit-pad: clamp(4px, .42vw, 8px);
-  --wf-fit-left: clamp(230px, 17vw, 300px);
-  --wf-fit-right: clamp(230px, 17vw, 300px);
-  --wf-fit-top: clamp(58px, 9.2vh, 78px);
-  --wf-fit-rack: clamp(104px, 17.2vh, 136px);
-  --wf-fit-board: min(
-    560px,
-    calc(100vh - var(--wf-fit-top) - var(--wf-fit-rack) - (var(--wf-fit-gap) * 5) - (var(--wf-fit-pad) * 2) - 8px),
-    calc(100vw - var(--wf-fit-left) - var(--wf-fit-right) - (var(--wf-fit-gap) * 8) - (var(--wf-fit-pad) * 2))
-  );
-}
-
-html,
-body,
-#root,
-.app {
-  width: 100vw !important;
-  height: 100vh !important;
-  min-width: 0 !important;
-  min-height: 0 !important;
-  overflow: hidden !important;
-}
-
-.gameShell {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: 100vw !important;
-  max-height: 100vh !important;
-  margin: 0 !important;
-  padding: var(--wf-fit-pad) !important;
-  gap: var(--wf-fit-gap) !important;
-  grid-template-columns: var(--wf-fit-left) minmax(0, 1fr) var(--wf-fit-right) !important;
-  grid-template-rows: minmax(0, 1fr) !important;
-  overflow: hidden !important;
-  box-sizing: border-box !important;
-  transform: none !important;
-  zoom: 1 !important;
-}
 
 /* Keep right rail visible even if old classes are set. */
 html.wf-ultra-narrow .rightRail,
@@ -13970,4 +13887,328 @@ html.wf-discord-short .letterTile {
   min-height: clamp(24px, min(1.85vw, 4vh), 32px) !important;
   max-width: clamp(24px, min(1.85vw, 4vh), 32px) !important;
   max-height: clamp(24px, min(1.85vw, 4vh), 32px) !important;
+}
+
+
+/* ==========================================================================
+   WORD FRONT v1.8.0 WIDE SCENE RENDERER
+   Built from the uploaded current repo only.
+
+   Why this exists:
+   Discord Web/Desktop/Railway give different iframe shapes. The old responsive
+   grid lets panels, board, and rack resize independently, so the design never
+   transfers the same. This uses a game-style virtual scene, but with a wide
+   1920x860 aspect ratio that matches Wordfront's actual UI better than 16:9.
+   ========================================================================== */
+
+:root {
+  --wf-scene-w: 1920px;
+  --wf-scene-h: 860px;
+  --wf-scene-scale: 1;
+  --wf-real-vw: 100vw;
+  --wf-real-vh: 100vh;
+  color-scheme: dark !important;
+}
+
+html,
+body,
+#root,
+.app {
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Home/start remains normal. */
+.homeShell {
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
+
+/* Viewport fills Discord/Railway iframe. */
+.wfSceneViewport {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background:
+    radial-gradient(circle at 0% 100%, rgba(182,106,255,.18), transparent 30%),
+    radial-gradient(circle at 100% 100%, rgba(185,255,25,.12), transparent 25%),
+    linear-gradient(135deg, #02040a 0%, #071226 55%, #02040a 100%) !important;
+}
+
+/* The only scaled object. */
+.wfScene {
+  width: var(--wf-scene-w) !important;
+  height: var(--wf-scene-h) !important;
+  min-width: var(--wf-scene-w) !important;
+  min-height: var(--wf-scene-h) !important;
+  max-width: var(--wf-scene-w) !important;
+  max-height: var(--wf-scene-h) !important;
+  transform: scale(var(--wf-scene-scale)) !important;
+  transform-origin: center center !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Fixed internal Wordfront layout. */
+.wfScene > .gameShell {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 1920px !important;
+  height: 860px !important;
+  min-width: 1920px !important;
+  min-height: 860px !important;
+  max-width: 1920px !important;
+  max-height: 860px !important;
+  margin: 0 !important;
+  padding: 8px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  transform: none !important;
+  zoom: 1 !important;
+  aspect-ratio: auto !important;
+
+  display: grid !important;
+  grid-template-columns: 320px minmax(0, 1fr) 305px !important;
+  grid-template-rows: 1fr !important;
+  gap: 10px !important;
+}
+
+/* Old responsive flags cannot change the fixed scene. */
+html.wf-compact .wfScene > .gameShell,
+html.wf-short .wfScene > .gameShell,
+html.wf-narrow .wfScene > .gameShell,
+html.wf-ultra-narrow .wfScene > .gameShell {
+  width: 1920px !important;
+  height: 860px !important;
+  min-width: 1920px !important;
+  min-height: 860px !important;
+  max-width: 1920px !important;
+  max-height: 860px !important;
+  grid-template-columns: 320px minmax(0, 1fr) 305px !important;
+  transform: none !important;
+}
+
+html.wf-ultra-narrow .rightRail,
+.wfScene .rightRail {
+  display: grid !important;
+}
+
+/* Fixed virtual-pixel layout. */
+.wfScene .leftRail,
+.wfScene .mainStage,
+.wfScene .rightRail,
+.wfScene .topBar,
+.wfScene .boardPanel,
+.wfScene .rackCard {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.wfScene .leftRail {
+  display: grid !important;
+  grid-template-rows: 76px 112px 152px 134px minmax(0, 1fr) 86px !important;
+  gap: 8px !important;
+}
+
+.wfScene .mainStage {
+  display: grid !important;
+  grid-template-rows: 76px minmax(0, 1fr) 124px !important;
+  gap: 8px !important;
+}
+
+.wfScene .rightRail {
+  display: grid !important;
+  grid-template-rows: 122px 96px minmax(0, 1fr) !important;
+  gap: 8px !important;
+}
+
+.wfScene .topBar {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 230px !important;
+  gap: 8px !important;
+}
+
+/* Board/grid fixed and fully visible. */
+.wfScene .boardPanel {
+  display: grid !important;
+  place-items: center !important;
+  padding: 6px !important;
+}
+
+.wfScene .battlefield,
+.wfScene .board {
+  width: 540px !important;
+  height: 540px !important;
+  min-width: 540px !important;
+  min-height: 540px !important;
+  max-width: 540px !important;
+  max-height: 540px !important;
+  aspect-ratio: 1 / 1 !important;
+  transform: none !important;
+}
+
+/* Rack and deploy controls fixed. */
+.wfScene .rackCard {
+  display: grid !important;
+  grid-template-columns: 190px minmax(0, 1fr) 245px !important;
+  grid-template-rows: 1fr !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 12px !important;
+}
+
+.wfScene .rackHeader,
+.wfScene .rackCard > div:first-child {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.wfScene .rackCard .rack,
+.wfScene .rack {
+  display: grid !important;
+  grid-template-columns: repeat(13, 34px) !important;
+  gap: 5px !important;
+  width: max-content !important;
+  max-width: none !important;
+  justify-self: center !important;
+  align-self: center !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+.wfScene .letterTile {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  max-width: 34px !important;
+  max-height: 34px !important;
+}
+
+.wfScene .letterTile span {
+  font-size: 17px !important;
+}
+
+.wfScene .letterTile small {
+  font-size: 6px !important;
+}
+
+.wfScene .wfFooterActionDock {
+  display: grid !important;
+  grid-template-columns: 78px 126px !important;
+  gap: 10px !important;
+  width: 214px !important;
+  min-width: 214px !important;
+  max-width: 214px !important;
+  justify-self: end !important;
+  align-self: center !important;
+  overflow: visible !important;
+}
+
+.wfScene .wfFooterActionDock > button,
+.wfScene .wfClearButton,
+.wfScene .wfDeployButton {
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  padding: 0 7px !important;
+  border-radius: 9px !important;
+  font-size: 8px !important;
+  line-height: 1.05 !important;
+  white-space: nowrap !important;
+}
+
+/* Type locked in virtual pixels. */
+.wfScene .brandBlock .wordmark,
+.wfScene .wordmark {
+  font-size: 34px !important;
+  line-height: .86 !important;
+  letter-spacing: -.10em !important;
+  transform: scaleX(.62) skewX(-7deg) !important;
+  transform-origin: left center !important;
+}
+
+.wfScene .turnCard h2 {
+  font-size: 38px !important;
+  line-height: .9 !important;
+}
+
+.wfScene .timeCard b {
+  font-size: 38px !important;
+  line-height: .9 !important;
+}
+
+.wfScene .lobbyCard h2 {
+  font-size: 26px !important;
+  line-height: 1 !important;
+}
+
+.wfScene .scoreCard h3,
+.wfScene .botCard h3 {
+  font-size: 19px !important;
+  line-height: 1.05 !important;
+}
+
+.wfScene .scoreCard b,
+.wfScene .botCard b {
+  font-size: 26px !important;
+  line-height: 1 !important;
+}
+
+.wfScene .rulesCard li,
+.wfScene .legendCard p {
+  font-size: 11px !important;
+  line-height: 1.28 !important;
+}
+
+.wfScene .rackHeader .eyebrow,
+.wfScene .rackCard .eyebrow {
+  font-size: 9px !important;
+  letter-spacing: .16em !important;
+  line-height: 1.05 !important;
+}
+
+.wfScene .hintLine,
+.wfScene .rackHeader .hintLine {
+  font-size: 10px !important;
+  line-height: 1.12 !important;
+}
+
+/* Bottom buttons fixed. */
+.wfScene .bottomButtons {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+}
+
+.wfScene .bottomButtons button {
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+}
+
+/* Help/menu overlays remain viewport-native, not scaled. */
+.wfHelpOverlay,
+.modalOverlay,
+.soloSetupOverlay {
+  position: fixed !important;
+  inset: 0 !important;
+  transform: none !important;
+  z-index: 2147483647 !important;
 }
