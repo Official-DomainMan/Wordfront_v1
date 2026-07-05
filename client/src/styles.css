@@ -14153,3 +14153,231 @@ html.wf-discord-short .letterTile {
   max-width: clamp(21px, min(1.48vw, 3.25vh), 27px) !important;
   max-height: clamp(21px, min(1.48vw, 3.25vh), 27px) !important;
 }
+
+
+/* ==========================================================================
+   WORD FRONT v1.6.3 FULL-WIDTH DISCORD WEB FIT
+   v1.6.2 was too narrow in Discord Web because it aspect-constrained the
+   whole game shell. This restores full-width shell behavior while keeping the
+   no-blue-screen safe-fit architecture.
+   ========================================================================== */
+
+:root {
+  --wf-web-shell-w: 100vw !important;
+  --wf-web-shell-h: 100vh !important;
+  --wf-final-shell-w: 100vw !important;
+  --wf-final-shell-h: 100vh !important;
+
+  --wf-web-left: clamp(235px, 16vw, 280px) !important;
+  --wf-web-right: clamp(230px, 15vw, 270px) !important;
+
+  --wf-web-top: clamp(56px, 8.4vh, 76px) !important;
+  --wf-web-rack: clamp(108px, 16vh, 138px) !important;
+  --wf-web-gap: clamp(4px, .42vw, 7px) !important;
+
+  --wf-web-board: min(
+    500px,
+    calc(100vh - var(--wf-web-top) - var(--wf-web-rack) - 36px),
+    calc(100vw - var(--wf-web-left) - var(--wf-web-right) - 104px)
+  ) !important;
+
+  --wf-final-board: var(--wf-web-board) !important;
+}
+
+.gameShell {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  grid-template-columns: var(--wf-web-left) minmax(0, 1fr) var(--wf-web-right) !important;
+  gap: var(--wf-web-gap) !important;
+  padding: var(--wf-web-gap) !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+.leftRail {
+  grid-template-rows:
+    var(--wf-web-top)
+    clamp(82px, 12.4vh, 106px)
+    clamp(104px, 16.2vh, 136px)
+    clamp(94px, 14.4vh, 124px)
+    minmax(0, 1fr)
+    clamp(78px, 11.8vh, 96px) !important;
+  gap: var(--wf-web-gap) !important;
+}
+
+.mainStage {
+  grid-template-rows: var(--wf-web-top) minmax(0, 1fr) var(--wf-web-rack) !important;
+  gap: var(--wf-web-gap) !important;
+}
+
+.rightRail {
+  grid-template-rows:
+    clamp(110px, 17vh, 142px)
+    clamp(84px, 12.6vh, 104px)
+    minmax(0, 1fr) !important;
+  gap: var(--wf-web-gap) !important;
+}
+
+.rulesCard,
+.territoryCard,
+.legendCard {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.rulesCard {
+  padding: clamp(9px, .75vw, 13px) !important;
+}
+
+.rulesCard li {
+  font-size: clamp(10px, .75vw, 12px) !important;
+  line-height: 1.26 !important;
+}
+
+.territoryCard {
+  padding: clamp(10px, .85vw, 14px) !important;
+}
+
+.legendCard {
+  padding: clamp(12px, .95vw, 16px) !important;
+}
+
+.legendCard p {
+  font-size: clamp(10px, .76vw, 12px) !important;
+  line-height: 1.28 !important;
+}
+
+.legendList,
+.legendCard ul,
+.legendCard .legendItems {
+  gap: clamp(7px, .8vh, 10px) !important;
+}
+
+.boardPanel,
+.boardCard {
+  padding: clamp(4px, .42vw, 7px) !important;
+}
+
+.board,
+.battlefield {
+  width: var(--wf-web-board) !important;
+  height: var(--wf-web-board) !important;
+  min-width: var(--wf-web-board) !important;
+  min-height: var(--wf-web-board) !important;
+  max-width: var(--wf-web-board) !important;
+  max-height: var(--wf-web-board) !important;
+  aspect-ratio: 1 / 1 !important;
+}
+
+.rackCard {
+  grid-template-columns: clamp(148px, 12vw, 185px) minmax(0, 1fr) clamp(190px, 15vw, 240px) !important;
+  gap: clamp(7px, .62vw, 11px) !important;
+  padding: clamp(7px, .9vh, 11px) clamp(8px, .8vw, 14px) !important;
+}
+
+.rackCard .rack,
+.rack {
+  grid-template-columns: repeat(13, clamp(27px, min(1.95vw, 4.1vh), 34px)) !important;
+  gap: clamp(3px, .28vw, 5px) !important;
+  justify-self: center !important;
+  align-self: center !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+
+.letterTile {
+  width: clamp(27px, min(1.95vw, 4.1vh), 34px) !important;
+  height: clamp(27px, min(1.95vw, 4.1vh), 34px) !important;
+  min-width: clamp(27px, min(1.95vw, 4.1vh), 34px) !important;
+  min-height: clamp(27px, min(1.95vw, 4.1vh), 34px) !important;
+  max-width: clamp(27px, min(1.95vw, 4.1vh), 34px) !important;
+  max-height: clamp(27px, min(1.95vw, 4.1vh), 34px) !important;
+}
+
+.letterTile span {
+  font-size: clamp(13px, 1.05vw, 17px) !important;
+}
+
+.letterTile small {
+  font-size: clamp(5px, .36vw, 6px) !important;
+}
+
+.wfFooterActionDock {
+  grid-template-columns: minmax(62px, .82fr) minmax(98px, 1.18fr) !important;
+  gap: clamp(6px, .52vw, 9px) !important;
+  width: min(100%, clamp(172px, 14vw, 220px)) !important;
+  min-width: clamp(172px, 14vw, 220px) !important;
+  max-width: 220px !important;
+  justify-self: end !important;
+  align-self: center !important;
+}
+
+.wfFooterActionDock > button,
+.wfClearButton,
+.wfDeployButton {
+  height: clamp(31px, 4.6vh, 39px) !important;
+  min-height: clamp(31px, 4.6vh, 39px) !important;
+  max-height: 39px !important;
+  font-size: clamp(6px, .56vw, 8px) !important;
+}
+
+.brandBlock .wordmark,
+.wordmark {
+  font-size: clamp(27px, 2.3vw, 36px) !important;
+}
+
+.turnCard h2,
+.timeCard b {
+  font-size: clamp(30px, 2.8vw, 40px) !important;
+}
+
+.lobbyCard h2 {
+  font-size: clamp(20px, 1.8vw, 26px) !important;
+}
+
+.scoreCard h3,
+.botCard h3 {
+  font-size: clamp(15px, 1.25vw, 19px) !important;
+}
+
+.scoreCard b,
+.botCard b {
+  font-size: clamp(20px, 1.8vw, 26px) !important;
+}
+
+.bottomButtons {
+  grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+  gap: clamp(5px, .65vh, 8px) !important;
+  overflow: hidden !important;
+}
+
+.bottomButtons button {
+  min-height: 32px !important;
+  max-height: 42px !important;
+  height: auto !important;
+}
+
+html.wf-discord-short {
+  --wf-web-board: min(
+    470px,
+    calc(100vh - var(--wf-web-top) - var(--wf-web-rack) - 36px),
+    calc(100vw - var(--wf-web-left) - var(--wf-web-right) - 104px)
+  ) !important;
+}
+
+html.wf-discord-short .rackCard .rack,
+html.wf-discord-short .rack {
+  grid-template-columns: repeat(13, clamp(25px, min(1.8vw, 3.9vh), 32px)) !important;
+}
+
+html.wf-discord-short .letterTile {
+  width: clamp(25px, min(1.8vw, 3.9vh), 32px) !important;
+  height: clamp(25px, min(1.8vw, 3.9vh), 32px) !important;
+  min-width: clamp(25px, min(1.8vw, 3.9vh), 32px) !important;
+  min-height: clamp(25px, min(1.8vw, 3.9vh), 32px) !important;
+  max-width: clamp(25px, min(1.8vw, 3.9vh), 32px) !important;
+  max-height: clamp(25px, min(1.8vw, 3.9vh), 32px) !important;
+}
